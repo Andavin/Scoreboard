@@ -98,6 +98,8 @@ public final class SBPlugin extends JavaPlugin implements Listener {
             return;
         }
 
+        final String forty = "1234567890123456789012345678901234567890";
+        final String sixtyFour = "prefix1234prefixdisplay123456789123456789displaysuffix1234suffix";
         final SideBar bar = this.bars.get(event.getPlayer().getUniqueId());
         if (bar != null) {
             final List<String> strings = new ArrayList<>(4);
@@ -106,6 +108,10 @@ public final class SBPlugin extends JavaPlugin implements Listener {
             strings.add("Z " + to.getBlockZ());
             if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
                 strings.add("Survive!");
+            }
+
+            if (event.getPlayer().getGameMode() == GameMode.SPECTATOR) {
+                strings.add(sixtyFour);
             }
 
             bar.display(strings);

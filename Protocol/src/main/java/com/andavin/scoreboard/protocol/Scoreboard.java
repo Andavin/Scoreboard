@@ -128,19 +128,27 @@ public abstract class Scoreboard {
     }
 
     /**
-     * Create a new team or update an existing one for the given
-     * player's scoreboard.
+     * Create a new team for the given player's scoreboard.
      *
      * @param player The player to update the team for.
      * @param name The unique ID name of the team.
      * @param line The line of text to make the displays of the team.
-     * @param create Whether the team should be updated to the
-     *         given info or a new one created with the info.
      */
-    public static void createOrUpdateTeam(final Player player, final String name, final String line, final boolean create) {
-        // Create a team with an action ID of 0 or update it with an ID of 2
-        EXECUTOR.execute(() -> INSTANCE.createTeamPacket(name, getDisplayName(line),
-                getPrefix(line), getSuffix(line), create ? 0 : 2));
+    public static void createTeam(final Player player, final String name, final String line) {
+        // Create a team with an action ID of 0
+        EXECUTOR.execute(() -> INSTANCE.send(player, INSTANCE.createTeamPacket(name, getDisplayName(line),
+                getPrefix(line), getSuffix(line), 0)));
+    }
+
+    public static void updateTeam(final Player player, final String name, final String line) {
+
+        EXECUTOR.execute(() -> {
+            final String display = getDisplayName(line);
+            final Object add = INSTANCE.createTeamPacket(name, display, null, null, 3);
+            final Object remove = INSTANCE.createTeamPacket(name, display, null, null, 4);
+            final Object update = INSTANCE.createTeamPacket(name, display, getPrefix(line), getSuffix(line), 2);
+            INSTANCE.send(player, Arrays.asList(remove, add, update));
+        });
     }
 
     /**
@@ -151,7 +159,8 @@ public abstract class Scoreboard {
      */
     public static void removeTeam(final Player player, final String name) {
         // Remove a team with action ID 1. The others will not be used if the ID isn't create or update
-        EXECUTOR.execute(() -> INSTANCE.createTeamPacket(name, null, null, null, 1));
+        EXECUTOR.execute(() -> INSTANCE.send(player, INSTANCE.createTeamPacket(name, null,
+                null, null, 1)));
     }
 
     /**

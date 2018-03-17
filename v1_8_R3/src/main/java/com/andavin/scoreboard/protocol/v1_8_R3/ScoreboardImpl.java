@@ -14,6 +14,7 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -72,6 +73,10 @@ public class ScoreboardImpl extends Scoreboard {
             Reflection.setValue(DISPLAY_NAME, packet, displayName);
             Reflection.setValue(PREFIX, packet, prefix);
             Reflection.setValue(SUFFIX, packet, suffix);
+        }
+
+        if (action == 0 || action == 3 || action == 4) {
+            Reflection.setValue(ENTRIES, packet, Collections.singletonList(displayName));
         }
 
         return packet;
