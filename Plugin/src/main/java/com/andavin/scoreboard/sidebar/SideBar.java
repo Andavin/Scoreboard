@@ -68,6 +68,11 @@ public abstract class SideBar {
 
     /**
      * Set the display name of this sidebar to the given text.
+     * <p>
+     * <b>Warning:</b> If this method is called directly after
+     * construction on a 1.7.10 server version of Minecraft it
+     * can crash the player client and should be delayed at least
+     * 1 tick.
      *
      * @param displayName The new display name.
      */
