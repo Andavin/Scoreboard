@@ -8,7 +8,7 @@ public final class SBPlugin extends JavaPlugin {
 
     private static SBPlugin plugin;
     private static boolean canChangeType = true;
-    private static SideBarType sideBarType = SideBarType.SCORE;
+    private static SideBarType sideBarType = SideBarType.TEAM;
 
     public SBPlugin() {
         plugin = this;

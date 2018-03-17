@@ -48,7 +48,7 @@ class TeamSideBar extends SideBar {
                     // Replace all lines if they are present
                     this.oldLines.set(i, newLine);
                     Scoreboard.updateTeam(this.player, team, old, newLine);
-                    packets.add(i, Scoreboard.getRemovePacket(this.objName, this.getDisplayName(old)));
+                    packets.add(Scoreboard.getRemovePacket(this.objName, this.getDisplayName(old)));
                 } else {
                     // If there was no old line for the index
                     // that means that lines were added
@@ -62,7 +62,7 @@ class TeamSideBar extends SideBar {
             // If say they removed some lines from last time
             // we need to account for those and remove them
             for (; i < this.oldLines.size(); i++) {
-                packets.add(i, Scoreboard.getRemovePacket(this.objName,
+                packets.add(Scoreboard.getRemovePacket(this.objName,
                         this.getDisplayName(this.oldLines.get(i))));
             }
 

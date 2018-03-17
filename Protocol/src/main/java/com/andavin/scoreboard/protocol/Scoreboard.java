@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +34,7 @@ public abstract class Scoreboard {
      * without use.
      */
     public static final Executor EXECUTOR = new ThreadPoolExecutor(1, 5,
-            60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+            60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
             new ThreadFactoryBuilder().setNameFormat("Scoreboard - %d").build());
 
     private static int objId;
@@ -136,8 +136,7 @@ public abstract class Scoreboard {
      */
     public static void createTeam(final Player player, final String name, final String line) {
         // Create a team with an action ID of 0
-        EXECUTOR.execute(() -> INSTANCE.send(player, INSTANCE.createTeamPacket(name, getDisplayName(line),
-                getPrefix(line), getSuffix(line), 0)));
+        INSTANCE.send(player, INSTANCE.createTeamPacket(name, getDisplayName(line), getPrefix(line), getSuffix(line), 0));
     }
 
     /**
@@ -149,14 +148,11 @@ public abstract class Scoreboard {
      * @param newLine The new line of text to update the displays to.
      */
     public static void updateTeam(final Player player, final String name, final String oldLine, final String newLine) {
-
-        EXECUTOR.execute(() -> {
-            final String display = getDisplayName(newLine);
-            final Object add = INSTANCE.createTeamPacket(name, display, null, null, 3);
-            final Object remove = INSTANCE.createTeamPacket(name, getDisplayName(oldLine), null, null, 4);
-            final Object update = INSTANCE.createTeamPacket(name, display, getPrefix(newLine), getSuffix(newLine), 2);
-            INSTANCE.send(player, Arrays.asList(remove, add, update));
-        });
+        final String display = getDisplayName(newLine);
+        final Object add = INSTANCE.createTeamPacket(name, display, null, null, 3);
+        final Object remove = INSTANCE.createTeamPacket(name, getDisplayName(oldLine), null, null, 4);
+        final Object update = INSTANCE.createTeamPacket(name, display, getPrefix(newLine), getSuffix(newLine), 2);
+        INSTANCE.send(player, Arrays.asList(remove, add, update));
     }
 
     /**
@@ -167,8 +163,7 @@ public abstract class Scoreboard {
      */
     public static void removeTeam(final Player player, final String name) {
         // Remove a team with action ID 1. The others will not be used if the ID isn't create or update
-        EXECUTOR.execute(() -> INSTANCE.send(player, INSTANCE.createTeamPacket(name, null,
-                null, null, 1)));
+        INSTANCE.send(player, INSTANCE.createTeamPacket(name, null, null, null, 1));
     }
 
     /**
