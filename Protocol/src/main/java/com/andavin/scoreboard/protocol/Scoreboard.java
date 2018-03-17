@@ -130,7 +130,7 @@ public abstract class Scoreboard {
     /**
      * Create a new team for the given player's scoreboard.
      *
-     * @param player The player to update the team for.
+     * @param player The player to create the team for.
      * @param name The unique ID name of the team.
      * @param line The line of text to make the displays of the team.
      */
@@ -140,13 +140,21 @@ public abstract class Scoreboard {
                 getPrefix(line), getSuffix(line), 0)));
     }
 
-    public static void updateTeam(final Player player, final String name, final String line) {
+    /**
+     * Update a team for the given player.
+     *
+     * @param player The player to update the team for.
+     * @param name The unique ID name of the team.
+     * @param oldLine The old line of text that was displayed for the team.
+     * @param newLine The new line of text to update the displays to.
+     */
+    public static void updateTeam(final Player player, final String name, final String oldLine, final String newLine) {
 
         EXECUTOR.execute(() -> {
-            final String display = getDisplayName(line);
+            final String display = getDisplayName(newLine);
             final Object add = INSTANCE.createTeamPacket(name, display, null, null, 3);
-            final Object remove = INSTANCE.createTeamPacket(name, display, null, null, 4);
-            final Object update = INSTANCE.createTeamPacket(name, display, getPrefix(line), getSuffix(line), 2);
+            final Object remove = INSTANCE.createTeamPacket(name, getDisplayName(oldLine), null, null, 4);
+            final Object update = INSTANCE.createTeamPacket(name, display, getPrefix(newLine), getSuffix(newLine), 2);
             INSTANCE.send(player, Arrays.asList(remove, add, update));
         });
     }
