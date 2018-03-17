@@ -1,30 +1,14 @@
 package com.andavin.scoreboard;
 
-import com.andavin.scoreboard.sidebar.SideBar;
 import com.andavin.scoreboard.sidebar.SideBarType;
 import com.andavin.scoreboard.util.Logger;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-public final class SBPlugin extends JavaPlugin implements Listener {
+public final class SBPlugin extends JavaPlugin {
 
     private static SBPlugin plugin;
     private static boolean canChangeType = true;
-    private static SideBarType sideBarType = SideBarType.TEAM;
-    private final Map<UUID, SideBar> bars = new HashMap<>();
+    private static SideBarType sideBarType = SideBarType.SCORE;
 
     public SBPlugin() {
         plugin = this;
@@ -34,7 +18,6 @@ public final class SBPlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         SBPlugin.canChangeType = false;
         Logger.init(this); // Initialize the logger
-        this.getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override
@@ -75,46 +58,6 @@ public final class SBPlugin extends JavaPlugin implements Listener {
             SBPlugin.sideBarType = sideBarType;
         } else {
             throw new IllegalStateException("Can no longer change the SideBarType.");
-        }
-    }
-
-    @EventHandler
-    public void onJoin(final PlayerJoinEvent event) {
-
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            final SideBar bar = SideBar.create(event.getPlayer(), event.getPlayer().getName());
-            this.bars.put(event.getPlayer().getUniqueId(), bar);
-            bar.setDisplayName(event.getPlayer().getDisplayName());
-        });
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onMove(final PlayerMoveEvent event) {
-
-        final Location from = event.getFrom(), to = event.getTo();
-        if (from.getBlockX() == to.getBlockX() &&
-            from.getBlockY() == to.getBlockY() &&
-            from.getBlockZ() == to.getBlockZ()) {
-            return;
-        }
-
-        final String forty = "1234567890123456789012345678901234567890";
-        final String sixtyFour = "prefix1234prefixdisplay123456789123456789displaysuffix1234suffix";
-        final SideBar bar = this.bars.get(event.getPlayer().getUniqueId());
-        if (bar != null) {
-            final List<String> strings = new ArrayList<>(4);
-            strings.add("X " + to.getBlockX());
-            strings.add("Y " + to.getBlockY());
-            strings.add("Z " + to.getBlockZ());
-            if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
-                strings.add("Survive!");
-            }
-
-            if (event.getPlayer().getGameMode() == GameMode.SPECTATOR) {
-                strings.add(sixtyFour);
-            }
-
-            bar.display(strings);
         }
     }
 }
