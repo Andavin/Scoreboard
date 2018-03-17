@@ -23,7 +23,7 @@ public final class SBPlugin extends JavaPlugin implements Listener {
 
     private static SBPlugin plugin;
     private static boolean canChangeType = true;
-    private static SideBarType sideBarType = SideBarType.SCORE;
+    private static SideBarType sideBarType = SideBarType.TEAM;
     private final Map<UUID, SideBar> bars = new HashMap<>();
 
     public SBPlugin() {

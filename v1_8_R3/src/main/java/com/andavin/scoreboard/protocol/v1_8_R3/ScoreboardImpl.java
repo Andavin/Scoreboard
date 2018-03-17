@@ -40,6 +40,7 @@ public class ScoreboardImpl extends Scoreboard {
     private static final Field DISPLAY_NAME = Reflection.getField(PacketPlayOutScoreboardTeam.class, "b");
     private static final Field PREFIX = Reflection.getField(PacketPlayOutScoreboardTeam.class, "c");
     private static final Field SUFFIX = Reflection.getField(PacketPlayOutScoreboardTeam.class, "d");
+    private static final Field ENTRIES = Reflection.getField(PacketPlayOutScoreboardTeam.class, "g");
     private static final Field ACTION_2 = Reflection.getField(PacketPlayOutScoreboardTeam.class, "h");
 
     @Override

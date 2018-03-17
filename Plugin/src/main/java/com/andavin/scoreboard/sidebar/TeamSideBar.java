@@ -53,7 +53,7 @@ class TeamSideBar extends SideBar {
                     // that means that lines were added
                     this.oldLines.add(newLine);
                     Scoreboard.createOrUpdateTeam(this.player, team, newLine, true);
-                    packets.add(Scoreboard.getAddPacket(this.objName, team, lines.length - i));
+                    packets.add(Scoreboard.getAddPacket(this.objName, this.getDisplayName(newLine), lines.length - i));
                 }
             }
 
@@ -62,10 +62,16 @@ class TeamSideBar extends SideBar {
             for (; i < this.oldLines.size(); i++) {
                 final String team = "team-" + i;
                 Scoreboard.removeTeam(player, team);
-                packets.add(i, Scoreboard.getRemovePacket(this.objName, team));
+                packets.add(0, Scoreboard.getRemovePacket(this.objName,
+                        this.getDisplayName(this.oldLines.get(i))));
             }
 
             Scoreboard.sendPacket(this.player, packets);
         });
+    }
+
+    private String getDisplayName(final String line) {
+        return line.length() <= 32 ? line : line.length() <= 48 ?
+                line.substring(16) : line.substring(16, 48);
     }
 }

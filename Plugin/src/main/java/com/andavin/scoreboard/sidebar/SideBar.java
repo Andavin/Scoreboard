@@ -72,11 +72,7 @@ public abstract class SideBar {
      * @param displayName The new display name.
      */
     public void setDisplayName(final String displayName) {
-
-        if (!this.limiter.isLimited()) {
-            this.limiter.update();
-            Scoreboard.setDisplayName(player, displayName, this.objName);
-        }
+        Scoreboard.setDisplayName(player, displayName, this.objName);
     }
 
     /**
