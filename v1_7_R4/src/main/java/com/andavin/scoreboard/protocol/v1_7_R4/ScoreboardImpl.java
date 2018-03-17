@@ -1,20 +1,18 @@
-package com.andavin.scoreboard.protocol.v1_8_R3;
+package com.andavin.scoreboard.protocol.v1_7_R4;
 
 import com.andavin.scoreboard.protocol.Scoreboard;
 import com.andavin.scoreboard.util.Reflection;
-import net.minecraft.server.v1_8_R3.IScoreboardCriteria.EnumScoreboardHealthDisplay;
-import net.minecraft.server.v1_8_R3.Packet;
-import net.minecraft.server.v1_8_R3.PacketPlayOutScoreboardDisplayObjective;
-import net.minecraft.server.v1_8_R3.PacketPlayOutScoreboardObjective;
-import net.minecraft.server.v1_8_R3.PacketPlayOutScoreboardScore;
-import net.minecraft.server.v1_8_R3.PacketPlayOutScoreboardScore.EnumScoreboardAction;
-import net.minecraft.server.v1_8_R3.PacketPlayOutScoreboardTeam;
-import net.minecraft.server.v1_8_R3.PlayerConnection;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import net.minecraft.server.v1_7_R4.Packet;
+import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardDisplayObjective;
+import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardObjective;
+import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardScore;
+import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardTeam;
+import net.minecraft.server.v1_7_R4.PlayerConnection;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -28,8 +26,7 @@ public class ScoreboardImpl extends Scoreboard {
     // Objective Fields
     private static final Field OBJ_NAME = Reflection.getField(PacketPlayOutScoreboardObjective.class, "a");
     private static final Field DISPLAY = Reflection.getField(PacketPlayOutScoreboardObjective.class, "b");
-    private static final Field HEALTH_DISPLAY = Reflection.getField(PacketPlayOutScoreboardObjective.class, "c");
-    private static final Field ACTION = Reflection.getField(PacketPlayOutScoreboardObjective.class, "d");
+    private static final Field ACTION = Reflection.getField(PacketPlayOutScoreboardObjective.class, "c");
     // Objective Slot Fields
     private static final Field SLOT = Reflection.getField(PacketPlayOutScoreboardDisplayObjective.class, "a");
     private static final Field OBJ_NAME_1 = Reflection.getField(PacketPlayOutScoreboardDisplayObjective.class, "b");
@@ -42,15 +39,14 @@ public class ScoreboardImpl extends Scoreboard {
     private static final Field DISPLAY_NAME = Reflection.getField(PacketPlayOutScoreboardTeam.class, "b");
     private static final Field PREFIX = Reflection.getField(PacketPlayOutScoreboardTeam.class, "c");
     private static final Field SUFFIX = Reflection.getField(PacketPlayOutScoreboardTeam.class, "d");
-    private static final Field ENTRIES = Reflection.getField(PacketPlayOutScoreboardTeam.class, "g");
-    private static final Field ACTION_2 = Reflection.getField(PacketPlayOutScoreboardTeam.class, "h");
+    private static final Field ENTRIES = Reflection.getField(PacketPlayOutScoreboardTeam.class, "e");
+    private static final Field ACTION_2 = Reflection.getField(PacketPlayOutScoreboardTeam.class, "f");
 
     @Override
     protected Object createObjectivePacket(final String objName, final String displayName, final int actionId) {
         final PacketPlayOutScoreboardObjective packet = new PacketPlayOutScoreboardObjective();
         Reflection.setValue(OBJ_NAME, packet, objName);
         Reflection.setValue(DISPLAY, packet, displayName);
-        Reflection.setValue(HEALTH_DISPLAY, packet, EnumScoreboardHealthDisplay.INTEGER);
         Reflection.setValue(ACTION, packet, actionId);
         return packet;
     }
@@ -77,7 +73,11 @@ public class ScoreboardImpl extends Scoreboard {
         }
 
         if (action == 0 || action == 3 || action == 4) {
-            Reflection.setValue(ENTRIES, packet, Collections.singletonList(displayName));
+
+            final Collection<String> entries = Reflection.getValue(ENTRIES, packet);
+            if (entries != null) {
+                entries.add(displayName);
+            }
         }
 
         return packet;
@@ -89,7 +89,7 @@ public class ScoreboardImpl extends Scoreboard {
         final PacketPlayOutScoreboardScore packet = new PacketPlayOutScoreboardScore(line);
         Reflection.setValue(OBJ_NAME_2, packet, objName);
         Reflection.setValue(SCORE, packet, score);
-        Reflection.setValue(ACTION_1, packet, EnumScoreboardAction.CHANGE);
+        Reflection.setValue(ACTION_1, packet, 0);
         return packet;
     }
 
