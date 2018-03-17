@@ -8,6 +8,7 @@ import net.minecraft.server.v1_8_R3.PacketPlayOutScoreboardDisplayObjective;
 import net.minecraft.server.v1_8_R3.PacketPlayOutScoreboardObjective;
 import net.minecraft.server.v1_8_R3.PacketPlayOutScoreboardScore;
 import net.minecraft.server.v1_8_R3.PacketPlayOutScoreboardScore.EnumScoreboardAction;
+import net.minecraft.server.v1_8_R3.PacketPlayOutScoreboardTeam;
 import net.minecraft.server.v1_8_R3.PlayerConnection;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -26,14 +27,20 @@ public class ScoreboardImpl extends Scoreboard {
     private static final Field OBJ_NAME = Reflection.getField(PacketPlayOutScoreboardObjective.class, "a");
     private static final Field DISPLAY = Reflection.getField(PacketPlayOutScoreboardObjective.class, "b");
     private static final Field HEALTH_DISPLAY = Reflection.getField(PacketPlayOutScoreboardObjective.class, "c");
-    private static final Field ACTION_ID = Reflection.getField(PacketPlayOutScoreboardObjective.class, "d");
+    private static final Field ACTION = Reflection.getField(PacketPlayOutScoreboardObjective.class, "d");
     // Objective Slot Fields
     private static final Field SLOT = Reflection.getField(PacketPlayOutScoreboardDisplayObjective.class, "a");
     private static final Field OBJ_NAME_1 = Reflection.getField(PacketPlayOutScoreboardDisplayObjective.class, "b");
     // Score Fields
     private static final Field OBJ_NAME_2 = Reflection.getField(PacketPlayOutScoreboardScore.class, "b");
     private static final Field SCORE = Reflection.getField(PacketPlayOutScoreboardScore.class, "c");
-    private static final Field ACTION = Reflection.getField(PacketPlayOutScoreboardScore.class, "d");
+    private static final Field ACTION_1 = Reflection.getField(PacketPlayOutScoreboardScore.class, "d");
+    // Team Fields
+    private static final Field TEAM_NAME = Reflection.getField(PacketPlayOutScoreboardTeam.class, "a");
+    private static final Field DISPLAY_NAME = Reflection.getField(PacketPlayOutScoreboardTeam.class, "b");
+    private static final Field PREFIX = Reflection.getField(PacketPlayOutScoreboardTeam.class, "c");
+    private static final Field SUFFIX = Reflection.getField(PacketPlayOutScoreboardTeam.class, "d");
+    private static final Field ACTION_2 = Reflection.getField(PacketPlayOutScoreboardTeam.class, "h");
 
     @Override
     protected Object createObjectivePacket(final String objName, final String displayName, final int actionId) {
@@ -41,7 +48,7 @@ public class ScoreboardImpl extends Scoreboard {
         Reflection.setValue(OBJ_NAME, packet, objName);
         Reflection.setValue(DISPLAY, packet, displayName);
         Reflection.setValue(HEALTH_DISPLAY, packet, EnumScoreboardHealthDisplay.INTEGER);
-        Reflection.setValue(ACTION_ID, packet, actionId);
+        Reflection.setValue(ACTION, packet, actionId);
         return packet;
     }
 
@@ -54,12 +61,28 @@ public class ScoreboardImpl extends Scoreboard {
     }
 
     @Override
+    protected Object createTeamPacket(final String name, final String displayName, final String prefix,
+            final String suffix, final int action) {
+
+        final PacketPlayOutScoreboardTeam packet = new PacketPlayOutScoreboardTeam();
+        Reflection.setValue(TEAM_NAME, packet, name);
+        Reflection.setValue(ACTION_2, packet, action);
+        if (action == 0 || action == 2) { // Create or update
+            Reflection.setValue(DISPLAY_NAME, packet, displayName);
+            Reflection.setValue(PREFIX, packet, prefix);
+            Reflection.setValue(SUFFIX, packet, suffix);
+        }
+
+        return packet;
+    }
+
+    @Override
     protected Object createAddPacket(final String objName, final String line, final int score) {
         // Set as many fields as possible using regular Java (just one)
         final PacketPlayOutScoreboardScore packet = new PacketPlayOutScoreboardScore(line);
         Reflection.setValue(OBJ_NAME_2, packet, objName);
         Reflection.setValue(SCORE, packet, score);
-        Reflection.setValue(ACTION, packet, EnumScoreboardAction.CHANGE);
+        Reflection.setValue(ACTION_1, packet, EnumScoreboardAction.CHANGE);
         return packet;
     }
 

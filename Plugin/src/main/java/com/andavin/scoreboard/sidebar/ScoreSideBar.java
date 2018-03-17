@@ -15,6 +15,8 @@ import java.util.List;
  */
 class ScoreSideBar extends SideBar {
 
+    private static final int MAX_LINE_LENGTH = 40;
+
     ScoreSideBar(@Nonnull final Player player, final String displayName, final Limiter limiter) {
         super(player, displayName, limiter);
     }

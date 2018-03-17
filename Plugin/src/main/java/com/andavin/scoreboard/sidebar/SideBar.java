@@ -3,10 +3,12 @@ package com.andavin.scoreboard.sidebar;
 import com.andavin.scoreboard.SBPlugin;
 import com.andavin.scoreboard.protocol.Scoreboard;
 import com.andavin.scoreboard.util.Limiter;
+import com.andavin.scoreboard.util.NoLimit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,27 +22,34 @@ import java.util.concurrent.TimeUnit;
 public abstract class SideBar {
 
     /**
-     * The maximum amount of characters allowed for a single
-     * line of text in a sidebar.
+     * Create a new sidebar for the given player and with the initial display name.
+     * <p>
+     * This default the {@link Limiter} to a limit of 100 milliseconds. This tends
+     * to be a good balance for update spacing so as to disallow duplicating lines
+     * in the sidebar while still being an extremely fast update speed.
+     * <br>
+     * This can be changed using the {@link #create(Player, String, Limiter)} method.
+     *
+     * @param player The player that this sidebar will be shown to.
+     * @param displayName The initial display name of the sidebar.
+     * @return The new {@link SideBar instance}.
      */
-    public static final int MAX_LINE_LENGTH;
-
-    static {
-
-        switch (SBPlugin.getSideBarType()) {
-            case TEAM:
-                MAX_LINE_LENGTH = 64;
-                break;
-            default:
-                MAX_LINE_LENGTH = 40;
-                break;
-        }
-    }
-
+    @ParametersAreNonnullByDefault
     public static SideBar create(final Player player, final String displayName) {
         return SideBar.create(player, displayName, new Limiter(100L, TimeUnit.MILLISECONDS));
     }
 
+    /**
+     * Create a new sidebar for the given player and with the initial display name.
+     * The {@link Limiter} can also be set to a custom setting here. Note that if
+     * the limit is to be removed that {@link NoLimit} should be used over a zero
+     * value (should never be {@code null}).
+     *
+     * @param player The player that this sidebar will be shown to.
+     * @param displayName The initial display name of the sidebar.
+     * @return The new {@link SideBar instance}.
+     */
+    @ParametersAreNonnullByDefault
     public static SideBar create(final Player player, final String displayName, final Limiter limiter) {
         return SBPlugin.getSideBarType().newInstance(player, displayName, limiter);
     }

@@ -15,6 +15,8 @@ import java.util.List;
  */
 class TeamSideBar extends SideBar {
 
+    private static final int MAX_LINE_LENGTH = 64;
+
     TeamSideBar(@Nonnull final Player player, final String displayName, final Limiter limiter) {
         super(player, displayName, limiter);
     }
@@ -40,25 +42,27 @@ class TeamSideBar extends SideBar {
                     newLine = newLine.substring(0, MAX_LINE_LENGTH);
                 }
 
+                final String team = "team-" + i; // This is per player we'll never have dupes this way
                 final String old = i < this.oldLines.size() ? this.oldLines.get(i) : null;
                 if (old != null) {
                     // Replace all lines if they are present
                     this.oldLines.set(i, newLine);
-                    packets.add(i, Scoreboard.getRemovePacket(this.objName, old));
+                    Scoreboard.createOrUpdateTeam(this.player, team, newLine, false);
                 } else {
                     // If there was no old line for the index
                     // that means that lines were added
                     this.oldLines.add(newLine);
+                    Scoreboard.createOrUpdateTeam(this.player, team, newLine, true);
+                    packets.add(Scoreboard.getAddPacket(this.objName, team, lines.length - i));
                 }
-
-                // We're always adding a line...
-                packets.add(Scoreboard.getAddPacket(this.objName, newLine, lines.length - i));
             }
 
             // If say they removed some lines from last time
             // we need to account for those and remove them
             for (; i < this.oldLines.size(); i++) {
-                packets.add(i, Scoreboard.getRemovePacket(this.objName, this.oldLines.get(i)));
+                final String team = "team-" + i;
+                Scoreboard.removeTeam(player, team);
+                packets.add(i, Scoreboard.getRemovePacket(this.objName, team));
             }
 
             Scoreboard.sendPacket(this.player, packets);

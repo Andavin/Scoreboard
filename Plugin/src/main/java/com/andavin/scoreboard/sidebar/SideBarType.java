@@ -36,6 +36,19 @@ public enum SideBarType {
      * with prefixes, suffixes and display names to display
      * information.
      * <p>
+     * This implementation is a bit more efficient in some
+     * ways and less in others. For changing the displayed
+     * data, for instance, it is more efficient since the
+     * display name of teams can be changed.
+     * <br>
+     * On the other hand, when scores are changed it takes
+     * at least one or two more packets per entry over {@link #SCORE}.
+     * <p>
+     * The biggest upside to this implementation is that
+     * the character limit is 60 characters. This almost unusable,
+     * however, some will want to use it for lots of colors
+     * or similar entries. The only reason this implementation should
+     * be used is for the extra length in characters.
      */
     TEAM {
         @Override
