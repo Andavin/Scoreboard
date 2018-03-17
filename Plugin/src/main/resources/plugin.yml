@@ -1,0 +1,5 @@
+name: ${project.name}
+version: ${project.version}
+main: com.andavin.scoreboard.SBPlugin
+authors: [Andavin]
+description: ${project.description}
