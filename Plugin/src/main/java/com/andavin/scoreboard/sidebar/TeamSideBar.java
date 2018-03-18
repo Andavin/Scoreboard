@@ -45,25 +45,26 @@ class TeamSideBar extends SideBar {
                 final String team = "team-" + i; // This is per player we'll never have dupes this way
                 final String old = i < this.oldLines.size() ? this.oldLines.get(i) : null;
                 if (old != null) {
-                    // Replace all lines if they are present
-                    this.oldLines.set(i, newLine);
-                    Scoreboard.updateTeam(this.player, team, old, newLine);
-                    packets.add(Scoreboard.getRemovePacket(this.objName, this.getDisplayName(old)));
+
+                    if (!old.equals(newLine)) {
+                        this.oldLines.set(i, newLine);
+                        Scoreboard.updateTeam(this.player, team, old, newLine);
+                        packets.add(Scoreboard.getRemovePacket(this.objName, this.getDisplayName(old)));
+                        packets.add(Scoreboard.getAddPacket(this.objName, this.getDisplayName(newLine), lines.length - i));
+                    }
                 } else {
                     // If there was no old line for the index
                     // that means that lines were added
                     this.oldLines.add(newLine);
                     Scoreboard.createTeam(this.player, team, newLine);
+                    packets.add(Scoreboard.getAddPacket(this.objName, this.getDisplayName(newLine), lines.length - i));
                 }
-
-                packets.add(Scoreboard.getAddPacket(this.objName, this.getDisplayName(newLine), lines.length - i));
             }
 
             // If say they removed some lines from last time
             // we need to account for those and remove them
             for (; i < this.oldLines.size(); i++) {
-                packets.add(Scoreboard.getRemovePacket(this.objName,
-                        this.getDisplayName(this.oldLines.get(i))));
+                packets.add(0, Scoreboard.getRemovePacket(this.objName, this.getDisplayName(this.oldLines.remove(i))));
             }
 
             Scoreboard.sendPacket(this.player, packets);

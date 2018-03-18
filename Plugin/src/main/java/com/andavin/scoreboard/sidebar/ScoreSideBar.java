@@ -44,9 +44,11 @@ class ScoreSideBar extends SideBar {
 
                 final String old = i < this.oldLines.size() ? this.oldLines.get(i) : null;
                 if (old != null) {
-                    // Replace all lines if they are present
-                    this.oldLines.set(i, newLine);
-                    packets.add(Scoreboard.getRemovePacket(this.objName, old));
+                    // Only replace the line packet-wise if it's different
+                    if (!old.equals(newLine)) {
+                        this.oldLines.set(i, newLine);
+                        packets.add(Scoreboard.getRemovePacket(this.objName, old));
+                    }
                 } else {
                     // If there was no old line for the index
                     // that means that lines were added
@@ -60,7 +62,7 @@ class ScoreSideBar extends SideBar {
             // If say they removed some lines from last time
             // we need to account for those and remove them
             for (; i < this.oldLines.size(); i++) {
-                packets.add(Scoreboard.getRemovePacket(this.objName, this.oldLines.get(i)));
+                packets.add(Scoreboard.getRemovePacket(this.objName, this.oldLines.remove(i)));
             }
 
             Scoreboard.sendPacket(this.player, packets);
