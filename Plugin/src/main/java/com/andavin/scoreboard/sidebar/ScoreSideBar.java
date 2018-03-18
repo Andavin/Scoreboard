@@ -2,6 +2,7 @@ package com.andavin.scoreboard.sidebar;
 
 import com.andavin.scoreboard.protocol.Scoreboard;
 import com.andavin.scoreboard.util.Limiter;
+import com.andavin.scoreboard.util.Logger;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -25,6 +26,12 @@ class ScoreSideBar extends SideBar {
     public void display(final String... lines) {
 
         if (this.limiter.isLimited()) {
+            return;
+        }
+
+        final Player player = this.getPlayer();
+        if (player == null) {
+            Logger.warn("[Score] Sidebar update attempt after player has logged out.");
             return;
         }
 
@@ -55,7 +62,7 @@ class ScoreSideBar extends SideBar {
                     this.oldLines.add(newLine);
                 }
 
-                // We're always adding a line...
+                // We're always adding/updating a line...
                 packets.add(Scoreboard.getAddPacket(this.objName, newLine, lines.length - i));
             }
 
@@ -65,7 +72,7 @@ class ScoreSideBar extends SideBar {
                 packets.add(0, Scoreboard.getRemovePacket(this.objName, this.oldLines.remove(i)));
             }
 
-            Scoreboard.sendPacket(this.player, packets);
+            Scoreboard.sendPacket(player, packets);
         });
     }
 }

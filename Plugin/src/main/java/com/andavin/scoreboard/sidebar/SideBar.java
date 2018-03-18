@@ -8,7 +8,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,16 +56,27 @@ public abstract class SideBar {
         return SBPlugin.getSideBarType().newInstance(player, displayName, limiter);
     }
 
-    final Player player;
     final String objName;
     final Limiter limiter;
+    private final WeakReference<Player> player;
     final List<String> oldLines = Collections.synchronizedList(new ArrayList<>(19));
 
     SideBar(@Nonnull final Player player, final String displayName, final Limiter limiter) {
-        this.player = player;
+        this.player = new WeakReference<>(player);
         this.limiter = limiter;
         this.objName = "obj-" + Scoreboard.getNextId();
         Scoreboard.createObjective(player, displayName, this.objName, DisplaySlot.SIDEBAR);
+    }
+
+    /**
+     * Get the player that this sidebar is being
+     * displayed for.
+     *
+     * @return The player.
+     */
+    @Nullable
+    public Player getPlayer() {
+        return this.player.get();
     }
 
     /**
@@ -77,7 +90,11 @@ public abstract class SideBar {
      * @param displayName The new display name.
      */
     public void setDisplayName(final String displayName) {
-        Scoreboard.setDisplayName(player, displayName, this.objName);
+
+        final Player player = this.getPlayer();
+        if (player != null) {
+            Scoreboard.setDisplayName(player, displayName, this.objName);
+        }
     }
 
     /**

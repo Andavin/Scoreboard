@@ -2,6 +2,7 @@ package com.andavin.scoreboard.sidebar;
 
 import com.andavin.scoreboard.protocol.Scoreboard;
 import com.andavin.scoreboard.util.Limiter;
+import com.andavin.scoreboard.util.Logger;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -28,6 +29,12 @@ class TeamSideBar extends SideBar {
             return;
         }
 
+        final Player player = this.getPlayer();
+        if (player == null) {
+            Logger.warn("[Team] Sidebar update attempt after player has logged out.");
+            return;
+        }
+
         this.limiter.update();
         Scoreboard.EXECUTOR.execute(() -> {
 
@@ -48,7 +55,7 @@ class TeamSideBar extends SideBar {
 
                     if (!old.equals(newLine)) {
                         this.oldLines.set(i, newLine);
-                        Scoreboard.updateTeam(this.player, team, old, newLine);
+                        Scoreboard.updateTeam(player, team, old, newLine);
                         packets.add(Scoreboard.getRemovePacket(this.objName, this.getDisplayName(old)));
                         packets.add(Scoreboard.getAddPacket(this.objName, this.getDisplayName(newLine), lines.length - i));
                     }
@@ -56,7 +63,7 @@ class TeamSideBar extends SideBar {
                     // If there was no old line for the index
                     // that means that lines were added
                     this.oldLines.add(newLine);
-                    Scoreboard.createTeam(this.player, team, newLine);
+                    Scoreboard.createTeam(player, team, newLine);
                     packets.add(Scoreboard.getAddPacket(this.objName, this.getDisplayName(newLine), lines.length - i));
                 }
             }
@@ -67,7 +74,7 @@ class TeamSideBar extends SideBar {
                 packets.add(0, Scoreboard.getRemovePacket(this.objName, this.getDisplayName(this.oldLines.remove(i))));
             }
 
-            Scoreboard.sendPacket(this.player, packets);
+            Scoreboard.sendPacket(player, packets);
         });
     }
 
