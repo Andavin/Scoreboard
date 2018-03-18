@@ -62,7 +62,7 @@ class ScoreSideBar extends SideBar {
             // If say they removed some lines from last time
             // we need to account for those and remove them
             for (; i < this.oldLines.size(); i++) {
-                packets.add(Scoreboard.getRemovePacket(this.objName, this.oldLines.remove(i)));
+                packets.add(0, Scoreboard.getRemovePacket(this.objName, this.oldLines.remove(i)));
             }
 
             Scoreboard.sendPacket(this.player, packets);
