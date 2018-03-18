@@ -14,11 +14,11 @@ import java.util.List;
  *
  * @author Andavin
  */
-class TeamSideBar extends SideBar {
+class TeamSidebar extends Sidebar {
 
     private static final int MAX_LINE_LENGTH = 64;
 
-    TeamSideBar(@Nonnull final Player player, final String displayName, final Limiter limiter) {
+    TeamSidebar(@Nonnull final Player player, final String displayName, final Limiter limiter) {
         super(player, displayName, limiter);
     }
 

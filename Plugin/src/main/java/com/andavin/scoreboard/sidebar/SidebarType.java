@@ -8,10 +8,10 @@ import org.bukkit.entity.Player;
  *
  * @author Andavin
  */
-public enum SideBarType {
+public enum SidebarType {
 
     /**
-     * A {@link SideBar} type that primarily uses plain
+     * A {@link Sidebar} type that primarily uses plain
      * score text for displaying information.
      * <p>
      * This implementation tends to be a lot simpler. It
@@ -26,13 +26,13 @@ public enum SideBarType {
      */
     SCORE {
         @Override
-        SideBar newInstance(final Player player, final String displayName, final Limiter limiter) {
-            return new ScoreSideBar(player, displayName, limiter);
+        Sidebar newInstance(final Player player, final String displayName, final Limiter limiter) {
+            return new ScoreSidebar(player, displayName, limiter);
         }
     },
 
     /**
-     * A {@link SideBar} type that primarily uses teams
+     * A {@link Sidebar} type that primarily uses teams
      * with prefixes, suffixes and display names to display
      * information.
      * <p>
@@ -52,18 +52,18 @@ public enum SideBarType {
      */
     TEAM {
         @Override
-        SideBar newInstance(final Player player, final String displayName, final Limiter limiter) {
-            return new TeamSideBar(player, displayName, limiter);
+        Sidebar newInstance(final Player player, final String displayName, final Limiter limiter) {
+            return new TeamSidebar(player, displayName, limiter);
         }
     };
 
     /**
-     * Create a new instance of this type of {@link SideBar}.
+     * Create a new instance of this type of {@link Sidebar}.
      *
      * @param player The player to create the instance for.
      * @param displayName The display name to initially give the sidebar.
      * @param limiter The {@link Limiter} to limit how fast the sidebar can be updated.
-     * @return The new {@link SideBar instance}.
+     * @return The new {@link Sidebar instance}.
      */
-    abstract SideBar newInstance(final Player player, final String displayName, final Limiter limiter);
+    abstract Sidebar newInstance(final Player player, final String displayName, final Limiter limiter);
 }

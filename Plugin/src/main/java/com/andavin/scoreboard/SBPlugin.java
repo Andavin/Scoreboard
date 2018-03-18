@@ -1,6 +1,6 @@
 package com.andavin.scoreboard;
 
-import com.andavin.scoreboard.sidebar.SideBarType;
+import com.andavin.scoreboard.sidebar.SidebarType;
 import com.andavin.scoreboard.util.Logger;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -8,7 +8,7 @@ public final class SBPlugin extends JavaPlugin {
 
     private static SBPlugin plugin;
     private static boolean canChangeType = true;
-    private static SideBarType sideBarType = SideBarType.SCORE;
+    private static SidebarType sideBarType = SidebarType.SCORE;
 
     public SBPlugin() {
         plugin = this;
@@ -35,24 +35,24 @@ public final class SBPlugin extends JavaPlugin {
     }
 
     /**
-     * Get the current {@link SideBarType} setting.
+     * Get the current {@link SidebarType} setting.
      *
      * @return The current setting.
      */
-    public static SideBarType getSideBarType() {
+    public static SidebarType getSideBarType() {
         return sideBarType;
     }
 
     /**
-     * Change the current {@link SideBarType} setting for the
+     * Change the current {@link SidebarType} setting for the
      * Scoreboard plugin.
      * <p>
-     * Default {@link SideBarType#SCORE}
+     * Default {@link SidebarType#SCORE}
      *
      * @param sideBarType The setting to change to.
      * @throws IllegalStateException If this method is called after {@link #onEnable()}.
      */
-    public static void setSideBarType(final SideBarType sideBarType) throws IllegalStateException {
+    public static void setSideBarType(final SidebarType sideBarType) throws IllegalStateException {
 
         if (canChangeType) {
             SBPlugin.sideBarType = sideBarType;

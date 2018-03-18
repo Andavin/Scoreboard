@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Andavin
  */
-public abstract class SideBar {
+public abstract class Sidebar {
 
     /**
      * Create a new sidebar for the given player and with the initial display name.
@@ -34,11 +34,11 @@ public abstract class SideBar {
      *
      * @param player The player that this sidebar will be shown to.
      * @param displayName The initial display name of the sidebar.
-     * @return The new {@link SideBar instance}.
+     * @return The new {@link Sidebar instance}.
      */
     @ParametersAreNonnullByDefault
-    public static SideBar create(final Player player, final String displayName) {
-        return SideBar.create(player, displayName, new Limiter(100L, TimeUnit.MILLISECONDS));
+    public static Sidebar create(final Player player, final String displayName) {
+        return Sidebar.create(player, displayName, new Limiter(100L, TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -49,10 +49,10 @@ public abstract class SideBar {
      *
      * @param player The player that this sidebar will be shown to.
      * @param displayName The initial display name of the sidebar.
-     * @return The new {@link SideBar instance}.
+     * @return The new {@link Sidebar instance}.
      */
     @ParametersAreNonnullByDefault
-    public static SideBar create(final Player player, final String displayName, final Limiter limiter) {
+    public static Sidebar create(final Player player, final String displayName, final Limiter limiter) {
         return SBPlugin.getSideBarType().newInstance(player, displayName, limiter);
     }
 
@@ -61,7 +61,7 @@ public abstract class SideBar {
     private final WeakReference<Player> player;
     final List<String> oldLines = Collections.synchronizedList(new ArrayList<>(19));
 
-    SideBar(@Nonnull final Player player, final String displayName, final Limiter limiter) {
+    Sidebar(@Nonnull final Player player, final String displayName, final Limiter limiter) {
         this.player = new WeakReference<>(player);
         this.limiter = limiter;
         this.objName = "obj-" + Scoreboard.getNextId();
