@@ -4,6 +4,7 @@ import com.andavin.scoreboard.SBPlugin;
 import com.andavin.scoreboard.protocol.Scoreboard;
 import com.andavin.scoreboard.util.Limiter;
 import com.andavin.scoreboard.util.NoLimit;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 
@@ -14,6 +15,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -58,10 +60,12 @@ public abstract class Sidebar {
 
     final String objName;
     final Limiter limiter;
+    private final UUID uuid;
     private final WeakReference<Player> player;
     final List<String> oldLines = Collections.synchronizedList(new ArrayList<>(19));
 
     Sidebar(@Nonnull final Player player, final String displayName, final Limiter limiter) {
+        this.uuid = player.getUniqueId();
         this.player = new WeakReference<>(player);
         this.limiter = limiter;
         this.objName = "obj-" + Scoreboard.getNextId();
@@ -76,7 +80,8 @@ public abstract class Sidebar {
      */
     @Nullable
     public Player getPlayer() {
-        return this.player.get();
+        final Player player = this.player.get();
+        return player != null ? player : Bukkit.getPlayer(this.uuid);
     }
 
     /**
