@@ -166,15 +166,15 @@ public abstract class Sidebar {
                 }
 
                 average /= updateSize;
+                Logger.debug("Average display interval for {} is {} for {} records.",
+                        player.getName(), TimeUtil.formatDifference(0, average, true, true), updateSize);
+                Logger.debug("The largest fluctuation in the interval logs was {}.",
+                        TimeUtil.formatDifference(0, fluctuation, true, true));
+
                 if (this.lastAverageTaken > 0) {
-                    Logger.debug("Average display interval for {} is {} for {} records.\n" +
-                                 "The last average of {} was taken {} ago.\n" +
-                                 "The largest fluctuation in the interval logs was {}.\n" +
-                                 "High fluctuation is only cause for concern if the usage dictates consistent updates.",
-                            player.getName(), TimeUtil.formatDifference(0, average, true, true), updateSize,
+                    Logger.debug("The last average of {} was taken {} ago.",
                             TimeUtil.formatDifference(0, this.lastAverage, true, true),
-                            TimeUtil.formatDifference(now, this.lastAverageTaken, true, true),
-                            TimeUtil.formatDifference(0, fluctuation, true, true)
+                            TimeUtil.formatDifference(now, this.lastAverageTaken, true, true)
                     );
                 }
 
