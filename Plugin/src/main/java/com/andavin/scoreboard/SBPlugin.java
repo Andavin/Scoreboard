@@ -20,11 +20,6 @@ public final class SBPlugin extends JavaPlugin {
         Logger.init(this); // Initialize the logger
     }
 
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
-    }
-
     /**
      * Get the main instance of the Scoreboard plugin.
      *

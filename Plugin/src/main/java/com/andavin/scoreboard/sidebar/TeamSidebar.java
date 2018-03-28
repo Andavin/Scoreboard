@@ -75,6 +75,7 @@ class TeamSidebar extends Sidebar {
             }
 
             Scoreboard.sendPacket(player, packets);
+            this.updateStatistics(player);
         });
     }
 

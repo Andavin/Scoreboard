@@ -3,7 +3,9 @@ package com.andavin.scoreboard.sidebar;
 import com.andavin.scoreboard.SBPlugin;
 import com.andavin.scoreboard.protocol.Scoreboard;
 import com.andavin.scoreboard.util.Limiter;
+import com.andavin.scoreboard.util.Logger;
 import com.andavin.scoreboard.util.NoLimit;
+import com.andavin.scoreboard.util.TimeUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -14,6 +16,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +60,12 @@ public abstract class Sidebar {
     public static Sidebar create(final Player player, final String displayName, final Limiter limiter) {
         return SBPlugin.getSideBarType().newInstance(player, displayName, limiter);
     }
+
+    private static final long MAX_LOG_TIME = TimeUnit.MINUTES.toMillis(2);
+    // Tracker values for how often the scoreboard
+    // actually updates for the player
+    private long lastUpdate, lastAverageTaken, lastAverage;
+    private final List<Long> updateIntervals = new LinkedList<>();
 
     final String objName;
     final Limiter limiter;
@@ -127,4 +136,45 @@ public abstract class Sidebar {
      * @param lines The lines to send to the player.
      */
     public abstract void display(final String... lines);
+
+    /**
+     * Update a recalculate the basic timing statistics
+     * for this scoreboard of how often it updates for
+     * the player.
+     *
+     * @param player The player is being displayed to.
+     */
+    void updateStatistics(final Player player) {
+
+        final long now = System.currentTimeMillis();
+        final long diff = now - this.lastUpdate;
+        this.updateIntervals.add(diff);
+        final int updateSize = this.updateIntervals.size();
+        if (updateSize > 200 || diff * updateSize > MAX_LOG_TIME) {
+            // Calculate the average, log it and clear stats
+            long average = 0, lastInterval = 0, fluctuation = 0;
+            for (final Long interval : this.updateIntervals) {
+                fluctuation = Math.max(interval - lastInterval, fluctuation);
+                lastInterval = interval;
+                average += interval;
+            }
+
+            average /= updateSize;
+            Logger.debug("Average display interval for {} is {} for {} records.\n" +
+                         "The last average of {} was taken {} ago.\n" +
+                         "The largest fluctuation in the interval logs was {}.\n" +
+                         "High fluctuation is only cause for concern if the usage dictates consistent updates.",
+                    player.getName(), TimeUtil.formatDifference(0, average, true, true), updateSize,
+                    TimeUtil.formatDifference(0, this.lastAverage, true, true),
+                    this.lastAverageTaken > 0 ? TimeUtil.formatDifference(now, this.lastAverageTaken, true, true) : "0ms",
+                    TimeUtil.formatDifference(0, fluctuation, true, true)
+            );
+
+            this.lastAverage = average;
+            this.lastAverageTaken = now;
+            this.updateIntervals.clear();
+        }
+
+        this.lastUpdate = now;
+    }
 }
