@@ -147,32 +147,41 @@ public abstract class Sidebar {
     void updateStatistics(final Player player) {
 
         final long now = System.currentTimeMillis();
-        final long diff = now - this.lastUpdate;
-        this.updateIntervals.add(diff);
-        final int updateSize = this.updateIntervals.size();
-        if (updateSize > 200 || diff * updateSize > MAX_LOG_TIME) {
-            // Calculate the average, log it and clear stats
-            long average = 0, lastInterval = 0, fluctuation = 0;
-            for (final Long interval : this.updateIntervals) {
-                fluctuation = Math.max(interval - lastInterval, fluctuation);
-                lastInterval = interval;
-                average += interval;
+        if (this.lastUpdate > 0) {
+            // Only calculate if we have received at least one update
+            final long diff = now - this.lastUpdate;
+            this.updateIntervals.add(diff);
+            final int updateSize = this.updateIntervals.size();
+            if (updateSize > 200 || diff * updateSize > MAX_LOG_TIME) {
+                // Calculate the average, log it and clear stats
+                long average = 0, lastInterval = 0, fluctuation = 0;
+                for (final Long interval : this.updateIntervals) {
+
+                    if (lastInterval > 0) {
+                        fluctuation = Math.max(interval - lastInterval, fluctuation);
+                    }
+
+                    lastInterval = interval;
+                    average += interval;
+                }
+
+                average /= updateSize;
+                if (this.lastAverageTaken > 0) {
+                    Logger.debug("Average display interval for {} is {} for {} records.\n" +
+                                 "The last average of {} was taken {} ago.\n" +
+                                 "The largest fluctuation in the interval logs was {}.\n" +
+                                 "High fluctuation is only cause for concern if the usage dictates consistent updates.",
+                            player.getName(), TimeUtil.formatDifference(0, average, true, true), updateSize,
+                            TimeUtil.formatDifference(0, this.lastAverage, true, true),
+                            TimeUtil.formatDifference(now, this.lastAverageTaken, true, true),
+                            TimeUtil.formatDifference(0, fluctuation, true, true)
+                    );
+                }
+
+                this.lastAverage = average;
+                this.lastAverageTaken = now;
+                this.updateIntervals.clear();
             }
-
-            average /= updateSize;
-            Logger.debug("Average display interval for {} is {} for {} records.\n" +
-                         "The last average of {} was taken {} ago.\n" +
-                         "The largest fluctuation in the interval logs was {}.\n" +
-                         "High fluctuation is only cause for concern if the usage dictates consistent updates.",
-                    player.getName(), TimeUtil.formatDifference(0, average, true, true), updateSize,
-                    TimeUtil.formatDifference(0, this.lastAverage, true, true),
-                    this.lastAverageTaken > 0 ? TimeUtil.formatDifference(now, this.lastAverageTaken, true, true) : "0ms",
-                    TimeUtil.formatDifference(0, fluctuation, true, true)
-            );
-
-            this.lastAverage = average;
-            this.lastAverageTaken = now;
-            this.updateIntervals.clear();
         }
 
         this.lastUpdate = now;
