@@ -152,7 +152,7 @@ public abstract class Sidebar {
             final long diff = now - this.lastUpdate;
             this.updateIntervals.add(diff);
             final int updateSize = this.updateIntervals.size();
-            if (updateSize > 200 || diff * updateSize > MAX_LOG_TIME) {
+            if (updateSize > 200 || now - this.lastAverageTaken > MAX_LOG_TIME) {
                 // Calculate the average, log it and clear stats
                 long average = 0, lastInterval = 0, fluctuation = 0;
                 for (final Long interval : this.updateIntervals) {
