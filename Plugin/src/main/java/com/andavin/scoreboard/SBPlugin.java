@@ -16,8 +16,9 @@ public final class SBPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        SBPlugin.canChangeType = false;
+        canChangeType = false;
         Logger.init(this); // Initialize the logger
+        this.saveDefaultConfig();
     }
 
     /**

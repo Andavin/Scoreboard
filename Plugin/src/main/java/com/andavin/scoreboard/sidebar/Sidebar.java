@@ -166,16 +166,19 @@ public abstract class Sidebar {
                 }
 
                 average /= updateSize;
-                Logger.debug("Average display interval for {} is {} for {} records.",
-                        player.getName(), TimeUtil.formatDifference(0, average, true, true), updateSize);
-                Logger.debug("The largest fluctuation in the interval logs was {}.",
-                        TimeUtil.formatDifference(0, fluctuation, true, true));
+                if (SBPlugin.getPlugin().getConfig().getBoolean("debug")) {
 
-                if (this.lastAverageTaken > 0) {
-                    Logger.debug("The last average of {} was taken {} ago.",
-                            TimeUtil.formatDifference(0, this.lastAverage, true, true),
-                            TimeUtil.formatDifference(now, this.lastAverageTaken, true, true)
-                    );
+                    Logger.debug("Average display interval for {} is {} for {} records.", player.getName(),
+                            TimeUtil.formatDifference(0, average, true, true), updateSize);
+                    Logger.debug("The largest fluctuation in the interval logs was {}.",
+                            TimeUtil.formatDifference(0, fluctuation, true, true));
+
+                    if (this.lastAverageTaken > 0) {
+                        Logger.debug("The last average of {} was taken {} ago.",
+                                TimeUtil.formatDifference(0, this.lastAverage, true, true),
+                                TimeUtil.formatDifference(now, this.lastAverageTaken, true, true)
+                        );
+                    }
                 }
 
                 this.lastAverage = average;

@@ -3,7 +3,6 @@ package com.andavin.scoreboard.sidebar;
 import com.andavin.scoreboard.protocol.Scoreboard;
 import com.andavin.scoreboard.util.Limiter;
 import com.andavin.scoreboard.util.Logger;
-import com.andavin.scoreboard.util.TimeUtil;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -37,15 +36,7 @@ class ScoreSidebar extends Sidebar {
         }
 
         this.limiter.update();
-        final long beforeRun = System.currentTimeMillis();
         Scoreboard.EXECUTOR.execute(() -> {
-
-            final long startRun = System.currentTimeMillis();
-            final long between = startRun - beforeRun;
-            if (between > 0) {
-                Logger.debug("Scoreboard execution took {} before it started run.",
-                        TimeUtil.formatDifference(0, between, true, true));
-            }
 
             // Queue up the packets so that they all send at the same time
             // with minimal delay due to reflection or other things we can avoid
@@ -83,11 +74,6 @@ class ScoreSidebar extends Sidebar {
 
             Scoreboard.sendPacket(player, packets);
             this.updateStatistics(player);
-            final long toRun = System.currentTimeMillis() - startRun;
-            if (toRun > 0) {
-                Logger.debug("Scoreboard execution task took {} to execute.",
-                        TimeUtil.formatDifference(0, toRun, true, true));
-            }
         });
     }
 }
