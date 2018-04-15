@@ -122,7 +122,7 @@ public abstract class Sidebar {
      * @param lines The lines to send to the player.
      */
     public void display(final List<String> lines) {
-        this.display(lines.toArray(new String[lines.size()]));
+        this.display(lines.toArray(new String[0]));
     }
 
     /**
