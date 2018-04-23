@@ -71,6 +71,7 @@ class TeamSidebar extends Sidebar {
             // If say they removed some lines from last time
             // we need to account for those and remove them
             for (; i < this.oldLines.size(); i++) {
+                Scoreboard.removeTeam(player, "team-" + i);
                 packets.add(0, Scoreboard.getRemovePacket(this.objName, this.getDisplayName(this.oldLines.remove(i))));
             }
 
