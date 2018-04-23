@@ -41,8 +41,8 @@ class ScoreSidebar extends Sidebar {
             // Queue up the packets so that they all send at the same time
             // with minimal delay due to reflection or other things we can avoid
             final List<Object> packets = new ArrayList<>(lines.length * 2);
-            int i;
-            for (i = 0; i < lines.length; i++) {
+            int i = 0;
+            for (; i < lines.length; i++) {
 
                 String newLine = lines[i];
                 if (newLine.length() > MAX_LINE_LENGTH) {
@@ -68,7 +68,8 @@ class ScoreSidebar extends Sidebar {
 
             // If say they removed some lines from last time
             // we need to account for those and remove them
-            for (; i < this.oldLines.size(); i++) {
+            final int currentLines = i;
+            for (i = this.oldLines.size() - 1; currentLines <= i; i--) {
                 packets.add(0, Scoreboard.getRemovePacket(this.objName, this.oldLines.remove(i)));
             }
 
