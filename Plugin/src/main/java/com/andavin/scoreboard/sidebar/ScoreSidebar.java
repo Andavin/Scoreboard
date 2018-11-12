@@ -18,18 +18,22 @@ class ScoreSidebar extends Sidebar {
 
     private static final int MAX_LINE_LENGTH = 40;
 
-    ScoreSidebar(@Nonnull final Player player, final String displayName, final Limiter limiter) {
+    ScoreSidebar(@Nonnull Player player, String displayName, Limiter limiter) {
         super(player, displayName, limiter);
     }
 
     @Override
-    public void display(final String... lines) {
+    public void display(String... lines) {
 
         if (this.limiter.isLimited()) {
             return;
         }
 
-        final Player player = this.getPlayer();
+        if (this.destroyed) {
+            throw new IllegalArgumentException("[Score] Attempting to update a destroyed sidebar.");
+        }
+
+        Player player = this.getPlayer();
         if (player == null) {
             Logger.warn("[Score] Sidebar update attempt after player has logged out.");
             return;
@@ -40,7 +44,7 @@ class ScoreSidebar extends Sidebar {
 
             // Queue up the packets so that they all send at the same time
             // with minimal delay due to reflection or other things we can avoid
-            final List<Object> packets = new ArrayList<>(lines.length * 2);
+            List<Object> packets = new ArrayList<>(lines.length * 2);
             int i = 0;
             for (; i < lines.length; i++) {
 
@@ -49,7 +53,7 @@ class ScoreSidebar extends Sidebar {
                     newLine = newLine.substring(0, MAX_LINE_LENGTH);
                 }
 
-                final String old = i < this.oldLines.size() ? this.oldLines.get(i) : null;
+                String old = i < this.oldLines.size() ? this.oldLines.get(i) : null;
                 if (old != null) {
                     // Only replace the line packet-wise if it's different
                     if (!old.equals(newLine)) {
@@ -68,7 +72,7 @@ class ScoreSidebar extends Sidebar {
 
             // If say they removed some lines from last time
             // we need to account for those and remove them
-            final int currentLines = i;
+            int currentLines = i;
             for (i = this.oldLines.size() - 1; currentLines <= i; i--) {
                 packets.add(0, Scoreboard.getRemovePacket(this.objName, this.oldLines.remove(i)));
             }

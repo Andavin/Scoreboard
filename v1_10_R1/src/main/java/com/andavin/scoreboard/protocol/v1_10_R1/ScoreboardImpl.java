@@ -3,13 +3,8 @@ package com.andavin.scoreboard.protocol.v1_10_R1;
 import com.andavin.scoreboard.protocol.Scoreboard;
 import com.andavin.scoreboard.util.Reflection;
 import net.minecraft.server.v1_10_R1.IScoreboardCriteria.EnumScoreboardHealthDisplay;
-import net.minecraft.server.v1_10_R1.Packet;
-import net.minecraft.server.v1_10_R1.PacketPlayOutScoreboardDisplayObjective;
-import net.minecraft.server.v1_10_R1.PacketPlayOutScoreboardObjective;
-import net.minecraft.server.v1_10_R1.PacketPlayOutScoreboardScore;
+import net.minecraft.server.v1_10_R1.*;
 import net.minecraft.server.v1_10_R1.PacketPlayOutScoreboardScore.EnumScoreboardAction;
-import net.minecraft.server.v1_10_R1.PacketPlayOutScoreboardTeam;
-import net.minecraft.server.v1_10_R1.PlayerConnection;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
@@ -46,8 +41,8 @@ public class ScoreboardImpl extends Scoreboard {
     private static final Field ACTION_2 = Reflection.getField(PacketPlayOutScoreboardTeam.class, "h");
 
     @Override
-    protected Object createObjectivePacket(final String objName, final String displayName, final int actionId) {
-        final PacketPlayOutScoreboardObjective packet = new PacketPlayOutScoreboardObjective();
+    protected Object createObjectivePacket(String objName, String displayName, int actionId) {
+        PacketPlayOutScoreboardObjective packet = new PacketPlayOutScoreboardObjective();
         Reflection.setValue(OBJ_NAME, packet, objName);
         Reflection.setValue(DISPLAY, packet, displayName);
         Reflection.setValue(HEALTH_DISPLAY, packet, EnumScoreboardHealthDisplay.INTEGER);
@@ -56,18 +51,18 @@ public class ScoreboardImpl extends Scoreboard {
     }
 
     @Override
-    protected Object createDisplaySlotPacket(final String objName, final int displaySlot) {
-        final PacketPlayOutScoreboardDisplayObjective packet = new PacketPlayOutScoreboardDisplayObjective();
+    protected Object createDisplaySlotPacket(String objName, int displaySlot) {
+        PacketPlayOutScoreboardDisplayObjective packet = new PacketPlayOutScoreboardDisplayObjective();
         Reflection.setValue(SLOT, packet, displaySlot);
         Reflection.setValue(OBJ_NAME_1, packet, objName);
         return packet;
     }
 
     @Override
-    protected Object createTeamPacket(final String name, final String displayName, final String prefix,
-            final String suffix, final int action) {
+    protected Object createTeamPacket(String name, String displayName, String prefix,
+                                      String suffix, int action) {
 
-        final PacketPlayOutScoreboardTeam packet = new PacketPlayOutScoreboardTeam();
+        PacketPlayOutScoreboardTeam packet = new PacketPlayOutScoreboardTeam();
         Reflection.setValue(TEAM_NAME, packet, name);
         Reflection.setValue(ACTION_2, packet, action);
         if (action == 0 || action == 2) { // Create or update
@@ -84,9 +79,9 @@ public class ScoreboardImpl extends Scoreboard {
     }
 
     @Override
-    protected Object createAddPacket(final String objName, final String line, final int score) {
+    protected Object createAddPacket(String objName, String line, int score) {
         // Set as many fields as possible using regular Java (just one)
-        final PacketPlayOutScoreboardScore packet = new PacketPlayOutScoreboardScore(line);
+        PacketPlayOutScoreboardScore packet = new PacketPlayOutScoreboardScore(line);
         Reflection.setValue(OBJ_NAME_2, packet, objName);
         Reflection.setValue(SCORE, packet, score);
         Reflection.setValue(ACTION_1, packet, EnumScoreboardAction.CHANGE);
@@ -94,26 +89,26 @@ public class ScoreboardImpl extends Scoreboard {
     }
 
     @Override
-    protected Object createRemovePacket(final String objName, final String line) {
-        final PacketPlayOutScoreboardScore score = new PacketPlayOutScoreboardScore(line);
+    protected Object createRemovePacket(String objName, String line) {
+        PacketPlayOutScoreboardScore score = new PacketPlayOutScoreboardScore(line);
         Reflection.setValue(OBJ_NAME_2, score, objName);
         return score;
     }
 
     @Override
-    protected void send(final Player player, final Object packet) {
+    protected void send(Player player, Object packet) {
         // If this method is called while the player is still initializing
         // then the player connection could be null
-        final PlayerConnection conn = ((CraftPlayer) player).getHandle().playerConnection;
+        PlayerConnection conn = ((CraftPlayer) player).getHandle().playerConnection;
         if (conn != null) {
             conn.sendPacket((Packet) packet);
         }
     }
 
     @Override
-    protected <T> void send(final Player player, final List<T> packets) {
+    protected <T> void send(Player player, List<T> packets) {
 
-        final PlayerConnection conn = ((CraftPlayer) player).getHandle().playerConnection;
+        PlayerConnection conn = ((CraftPlayer) player).getHandle().playerConnection;
         if (conn != null) {
             packets.stream().map(Packet.class::cast).forEach(conn::sendPacket);
         }

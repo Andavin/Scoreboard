@@ -27,7 +27,7 @@ public class Limiter {
      * @param limit The limit based on the time unit given.
      * @param unit The {@link TimeUnit unit} that should be used to translate the limit.
      */
-    public Limiter(final long limit, final TimeUnit unit) {
+    public Limiter(long limit, TimeUnit unit) {
         this.limit = unit.toMillis(limit);
     }
 

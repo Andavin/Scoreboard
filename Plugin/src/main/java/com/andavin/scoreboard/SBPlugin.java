@@ -48,7 +48,7 @@ public final class SBPlugin extends JavaPlugin {
      * @param sideBarType The setting to change to.
      * @throws IllegalStateException If this method is called after {@link #onEnable()}.
      */
-    public static void setSideBarType(final SidebarType sideBarType) throws IllegalStateException {
+    public static void setSideBarType(SidebarType sideBarType) throws IllegalStateException {
 
         if (canChangeType) {
             SBPlugin.sideBarType = sideBarType;

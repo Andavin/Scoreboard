@@ -26,7 +26,7 @@ public enum SidebarType {
      */
     SCORE {
         @Override
-        Sidebar newInstance(final Player player, final String displayName, final Limiter limiter) {
+        Sidebar newInstance(Player player, String displayName, Limiter limiter) {
             return new ScoreSidebar(player, displayName, limiter);
         }
     },
@@ -52,7 +52,7 @@ public enum SidebarType {
      */
     TEAM {
         @Override
-        Sidebar newInstance(final Player player, final String displayName, final Limiter limiter) {
+        Sidebar newInstance(Player player, String displayName, Limiter limiter) {
             return new TeamSidebar(player, displayName, limiter);
         }
     };
@@ -65,5 +65,5 @@ public enum SidebarType {
      * @param limiter The {@link Limiter} to limit how fast the sidebar can be updated.
      * @return The new {@link Sidebar instance}.
      */
-    abstract Sidebar newInstance(final Player player, final String displayName, final Limiter limiter);
+    abstract Sidebar newInstance(Player player, String displayName, Limiter limiter);
 }

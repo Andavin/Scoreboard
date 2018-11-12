@@ -39,15 +39,15 @@ public abstract class Scoreboard {
 
     private static int objId;
     private static final Scoreboard INSTANCE;
-    private static final int CREATE = 0, UPDATE = 2;
     private static final Map<DisplaySlot, Integer> SLOTS;
+    private static final int CREATE = 0, DELETE = 1, UPDATE = 2;
 
     static {
 
         Logger.info("Finding the proper protocol manager for your server version {} - {}.",
                 Bukkit.getVersion(), Reflection.VERSION_STRING);
 
-        final Class<? extends Scoreboard> clazz = Reflection.getClassType(
+        Class<? extends Scoreboard> clazz = Reflection.getClassType(
                 "com.andavin.scoreboard.protocol." + Reflection.VERSION_STRING + ".ScoreboardImpl");
         if (clazz != null) {
             INSTANCE = Reflection.getInstance(clazz);
@@ -55,8 +55,8 @@ public abstract class Scoreboard {
             throw new UnsupportedOperationException("This version of Minecraft (" + Bukkit.getVersion() + ") is not supported.");
         }
 
-        final Builder<DisplaySlot, Integer> builder = ImmutableMap.builder();
-        for (final DisplaySlot slot : DisplaySlot.values()) {
+        Builder<DisplaySlot, Integer> builder = ImmutableMap.builder();
+        for (DisplaySlot slot : DisplaySlot.values()) {
 
             switch (slot) {
                 case PLAYER_LIST:
@@ -81,7 +81,7 @@ public abstract class Scoreboard {
      * @param packet The packet object to send.
      * @throws ClassCastException If the packet type is not an instance of the NMS Packet class.
      */
-    public static void sendPacket(final Player player, final Object packet) throws ClassCastException {
+    public static void sendPacket(Player player, Object packet) throws ClassCastException {
         INSTANCE.send(player, packet);
     }
 
@@ -94,7 +94,7 @@ public abstract class Scoreboard {
      * @param <Packet> The type of the packet (usually {@link Object}).
      * @throws ClassCastException If the packet type is not an instance of the NMS Packet class.
      */
-    public static <Packet> void sendPacket(final Player player, final List<Packet> packets) throws ClassCastException {
+    public static <Packet> void sendPacket(Player player, List<Packet> packets) throws ClassCastException {
         INSTANCE.send(player, packets);
     }
 
@@ -107,13 +107,17 @@ public abstract class Scoreboard {
      * @param objName The objective unique ID name.
      * @param slot The ID of the slot the objective should be created for.
      */
-    public static void createObjective(final Player player, final String displayName, final String objName, final DisplaySlot slot) {
+    public static void createObjective(Player player, String displayName, String objName, DisplaySlot slot) {
 
         EXECUTOR.execute(() -> {
-            final Object create = INSTANCE.createObjectivePacket(objName, displayName, CREATE);
-            final Object display = INSTANCE.createDisplaySlotPacket(objName, SLOTS.get(slot));
+            Object create = INSTANCE.createObjectivePacket(objName, displayName, CREATE);
+            Object display = INSTANCE.createDisplaySlotPacket(objName, SLOTS.get(slot));
             INSTANCE.send(player, Arrays.asList(create, display));
         });
+    }
+
+    public static void deleteObjective(Player player, String objName) {
+        EXECUTOR.execute(() -> INSTANCE.send(player, INSTANCE.createObjectivePacket(objName, null, DELETE)));
     }
 
     /**
@@ -123,7 +127,7 @@ public abstract class Scoreboard {
      * @param displayName The new display name of the objective.
      * @param objName The objective unique ID name.
      */
-    public static void setDisplayName(final Player player, final String displayName, final String objName) {
+    public static void setDisplayName(Player player, String displayName, String objName) {
         EXECUTOR.execute(() -> INSTANCE.send(player, INSTANCE.createObjectivePacket(objName, displayName, UPDATE)));
     }
 
@@ -134,7 +138,7 @@ public abstract class Scoreboard {
      * @param name The unique ID name of the team.
      * @param line The line of text to make the displays of the team.
      */
-    public static void createTeam(final Player player, final String name, final String line) {
+    public static void createTeam(Player player, String name, String line) {
         // Create a team with an action ID of 0
         INSTANCE.send(player, INSTANCE.createTeamPacket(name, getDisplayName(line), getPrefix(line), getSuffix(line), 0));
     }
@@ -147,11 +151,11 @@ public abstract class Scoreboard {
      * @param oldLine The old line of text that was displayed for the team.
      * @param newLine The new line of text to update the displays to.
      */
-    public static void updateTeam(final Player player, final String name, final String oldLine, final String newLine) {
-        final String display = getDisplayName(newLine);
-        final Object add = INSTANCE.createTeamPacket(name, display, null, null, 3);
-        final Object remove = INSTANCE.createTeamPacket(name, getDisplayName(oldLine), null, null, 4);
-        final Object update = INSTANCE.createTeamPacket(name, display, getPrefix(newLine), getSuffix(newLine), 2);
+    public static void updateTeam(Player player, String name, String oldLine, String newLine) {
+        String display = getDisplayName(newLine);
+        Object add = INSTANCE.createTeamPacket(name, display, null, null, 3);
+        Object remove = INSTANCE.createTeamPacket(name, getDisplayName(oldLine), null, null, 4);
+        Object update = INSTANCE.createTeamPacket(name, display, getPrefix(newLine), getSuffix(newLine), 2);
         INSTANCE.send(player, Arrays.asList(remove, add, update));
     }
 
@@ -161,7 +165,7 @@ public abstract class Scoreboard {
      * @param player The player to delete the team for.
      * @param name The unique ID name of the team to delete.
      */
-    public static void removeTeam(final Player player, final String name) {
+    public static void removeTeam(Player player, String name) {
         // Remove a team with action ID 1. The others will not be used if the ID isn't create or update
         INSTANCE.send(player, INSTANCE.createTeamPacket(name, null, null, null, 1));
     }
@@ -175,7 +179,7 @@ public abstract class Scoreboard {
      * @param score The score or, for our purposes, index of the score.
      * @return The newly created {@code "add"} packet object.
      */
-    public static Object getAddPacket(final String objName, final String line, final int score) {
+    public static Object getAddPacket(String objName, String line, int score) {
         return INSTANCE.createAddPacket(objName, line, score);
     }
 
@@ -187,7 +191,7 @@ public abstract class Scoreboard {
      * @param line The line of text that is being displayed for the score.
      * @return The newly created {@code "remove"} packet object.
      */
-    public static Object getRemovePacket(final String objName, final String line) {
+    public static Object getRemovePacket(String objName, String line) {
         return INSTANCE.createRemovePacket(objName, line);
     }
 
@@ -215,7 +219,7 @@ public abstract class Scoreboard {
      * @param actionId The action to perform for this objective (create, edit, etc.).
      * @return The newly created objective packet object.
      */
-    protected abstract Object createObjectivePacket(final String objName, final String displayName, final int actionId);
+    protected abstract Object createObjectivePacket(String objName, String displayName, int actionId);
 
     /**
      * Create a new objective packet that will tell the client
@@ -225,7 +229,7 @@ public abstract class Scoreboard {
      * @param displaySlot The ID of the display slot to place the objective at.
      * @return The newly created objective slot packet object.
      */
-    protected abstract Object createDisplaySlotPacket(final String objName, final int displaySlot);
+    protected abstract Object createDisplaySlotPacket(String objName, int displaySlot);
 
     /**
      * Create a new packet for a team to perform an action for that
@@ -238,8 +242,8 @@ public abstract class Scoreboard {
      * @param action The action to perform for this team (create, update, etc.).
      * @return The newly created team action packet object.
      */
-    protected abstract Object createTeamPacket(final String name, final String displayName,
-            final String prefix, final String suffix, final int action);
+    protected abstract Object createTeamPacket(String name, String displayName,
+                                               String prefix, String suffix, int action);
 
     /**
      * Create a new packet that will add a score to a scoreboard
@@ -250,7 +254,7 @@ public abstract class Scoreboard {
      * @param score The score or, for our purposes, index of the score.
      * @return The newly created {@code "add"} packet object.
      */
-    protected abstract Object createAddPacket(final String objName, final String line, final int score);
+    protected abstract Object createAddPacket(String objName, String line, int score);
 
     /**
      * Get a new instance of a packet that contains the settings
@@ -260,7 +264,7 @@ public abstract class Scoreboard {
      * @param line The line of text that is being displayed for the score.
      * @return The newly created {@code "remove"} packet object.
      */
-    protected abstract Object createRemovePacket(final String objName, final String line);
+    protected abstract Object createRemovePacket(String objName, String line);
 
     /**
      * Send a packet to the given player.
@@ -269,7 +273,7 @@ public abstract class Scoreboard {
      * @param packet The packet object to send.
      * @throws ClassCastException If the packet type is not an instance of the NMS Packet class.
      */
-    protected abstract void send(final Player player, final Object packet);
+    protected abstract void send(Player player, Object packet);
 
     /**
      * Send multiple packets the given player at one. This method
@@ -280,15 +284,15 @@ public abstract class Scoreboard {
      * @param <Packet> The type of the packet (usually {@link Object}).
      * @throws ClassCastException If the packet type is not an instance of the NMS Packet class.
      */
-    protected abstract <Packet> void send(final Player player, final List<Packet> packets);
+    protected abstract <Packet> void send(Player player, List<Packet> packets);
 
-    private static String getPrefix(final String line) {
+    private static String getPrefix(String line) {
         // If the line is more than 32 long then get the first 16 characters
         // If it's not that long then the display name can cover the whole thing
         return line.length() <= 32 ? "" : line.substring(0, 16);
     }
 
-    private static String getDisplayName(final String line) {
+    private static String getDisplayName(String line) {
         // If it's less than 32 character long then we're good to just use the whole thing
         // If the line is more than 32 long, but less than 48, then get from 16 on
         // If it is more than 48 then get from 16 to 48
@@ -296,7 +300,7 @@ public abstract class Scoreboard {
                 line.substring(16) : line.substring(16, 48);
     }
 
-    private static String getSuffix(final String line) {
+    private static String getSuffix(String line) {
         // If the line is more than 48 then get whatever characters are after that
         return line.length() <= 48 ? "" : line.substring(48);
     }

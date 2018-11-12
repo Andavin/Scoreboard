@@ -14,11 +14,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,7 +38,7 @@ public abstract class Sidebar {
      * @return The new {@link Sidebar instance}.
      */
     @ParametersAreNonnullByDefault
-    public static Sidebar create(final Player player, final String displayName) {
+    public static Sidebar create(Player player, String displayName) {
         return Sidebar.create(player, displayName, new Limiter(100L, TimeUnit.MILLISECONDS));
     }
 
@@ -57,11 +53,13 @@ public abstract class Sidebar {
      * @return The new {@link Sidebar instance}.
      */
     @ParametersAreNonnullByDefault
-    public static Sidebar create(final Player player, final String displayName, final Limiter limiter) {
+    public static Sidebar create(Player player, String displayName, Limiter limiter) {
         return SBPlugin.getSideBarType().newInstance(player, displayName, limiter);
     }
 
     private static final long MAX_LOG_TIME = TimeUnit.MINUTES.toMillis(2);
+
+    boolean destroyed;
     // Tracker values for how often the scoreboard
     // actually updates for the player
     private long lastUpdate, lastAverageTaken, lastAverage;
@@ -73,7 +71,7 @@ public abstract class Sidebar {
     private final WeakReference<Player> player;
     final List<String> oldLines = Collections.synchronizedList(new ArrayList<>(19));
 
-    Sidebar(@Nonnull final Player player, final String displayName, final Limiter limiter) {
+    Sidebar(@Nonnull Player player, String displayName, Limiter limiter) {
         this.uuid = player.getUniqueId();
         this.player = new WeakReference<>(player);
         this.limiter = limiter;
@@ -89,8 +87,21 @@ public abstract class Sidebar {
      */
     @Nullable
     public Player getPlayer() {
-        final Player player = this.player.get();
+        Player player = this.player.get();
         return player != null ? player : Bukkit.getPlayer(this.uuid);
+    }
+
+    public boolean isDestroyed() {
+        return destroyed;
+    }
+
+    public void destroy() {
+
+        this.destroyed = true;
+        Player player = this.getPlayer();
+        if (player != null) {
+            Scoreboard.deleteObjective(player, this.objName);
+        }
     }
 
     /**
@@ -103,9 +114,9 @@ public abstract class Sidebar {
      *
      * @param displayName The new display name.
      */
-    public void setDisplayName(final String displayName) {
+    public void setDisplayName(String displayName) {
 
-        final Player player = this.getPlayer();
+        Player player = this.getPlayer();
         if (player != null) {
             Scoreboard.setDisplayName(player, displayName, this.objName);
         }
@@ -121,7 +132,7 @@ public abstract class Sidebar {
      *
      * @param lines The lines to send to the player.
      */
-    public void display(final List<String> lines) {
+    public void display(List<String> lines) {
         this.display(lines.toArray(new String[0]));
     }
 
@@ -135,7 +146,7 @@ public abstract class Sidebar {
      *
      * @param lines The lines to send to the player.
      */
-    public abstract void display(final String... lines);
+    public abstract void display(String... lines);
 
     /**
      * Update a recalculate the basic timing statistics
@@ -144,18 +155,18 @@ public abstract class Sidebar {
      *
      * @param player The player is being displayed to.
      */
-    void updateStatistics(final Player player) {
+    void updateStatistics(Player player) {
 
-        final long now = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
         if (this.lastUpdate > 0) {
             // Only calculate if we have received at least one update
-            final long diff = now - this.lastUpdate;
+            long diff = now - this.lastUpdate;
             this.updateIntervals.add(diff);
-            final int updateSize = this.updateIntervals.size();
+            int updateSize = this.updateIntervals.size();
             if (updateSize > 200 || now - this.lastAverageTaken > MAX_LOG_TIME) {
                 // Calculate the average, log it and clear stats
                 long average = 0, lastInterval = 0, fluctuation = 0;
-                for (final Long interval : this.updateIntervals) {
+                for (Long interval : this.updateIntervals) {
 
                     if (lastInterval > 0) {
                         fluctuation = Math.max(interval - lastInterval, fluctuation);
