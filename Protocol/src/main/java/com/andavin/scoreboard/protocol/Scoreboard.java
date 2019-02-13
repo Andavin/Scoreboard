@@ -2,20 +2,14 @@ package com.andavin.scoreboard.protocol;
 
 import com.andavin.scoreboard.util.Logger;
 import com.andavin.scoreboard.util.Reflection;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created on March 16, 2018
@@ -24,23 +18,10 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class Scoreboard {
 
-    /**
-     * A basic {@link Executor executor service} for sending packets
-     * asynchronously. This thread pool can have a minimum of {@code 1}
-     * thread in it if it is not in use and can have a maximum of {@code 5}
-     * threads alive at one time.
-     * <p>
-     * The pool will let threads die if they have gone 60 seconds
-     * without use.
-     */
-    public static final Executor EXECUTOR = new ThreadPoolExecutor(1, 5,
-            60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
-            new ThreadFactoryBuilder().setNameFormat("Scoreboard - %d").build());
-
     private static int objId;
     private static final Scoreboard INSTANCE;
-    private static final Map<DisplaySlot, Integer> SLOTS;
     private static final int CREATE = 0, DELETE = 1, UPDATE = 2;
+    private static final Map<DisplaySlot, Integer> SLOTS = new EnumMap<>(DisplaySlot.class);
 
     static {
 
@@ -55,23 +36,20 @@ public abstract class Scoreboard {
             throw new UnsupportedOperationException("This version of Minecraft (" + Bukkit.getVersion() + ") is not supported.");
         }
 
-        Builder<DisplaySlot, Integer> builder = ImmutableMap.builder();
         for (DisplaySlot slot : DisplaySlot.values()) {
 
             switch (slot) {
                 case PLAYER_LIST:
-                    builder.put(slot, 0);
+                    SLOTS.put(slot, 0);
                     break;
                 case SIDEBAR:
-                    builder.put(slot, 1);
+                    SLOTS.put(slot, 1);
                     break;
                 case BELOW_NAME:
-                    builder.put(slot, 2);
+                    SLOTS.put(slot, 2);
                     break;
             }
         }
-
-        SLOTS = builder.build();
     }
 
     /**
@@ -108,16 +86,13 @@ public abstract class Scoreboard {
      * @param slot The ID of the slot the objective should be created for.
      */
     public static void createObjective(Player player, String displayName, String objName, DisplaySlot slot) {
-
-        EXECUTOR.execute(() -> {
-            Object create = INSTANCE.createObjectivePacket(objName, displayName, CREATE);
-            Object display = INSTANCE.createDisplaySlotPacket(objName, SLOTS.get(slot));
-            INSTANCE.send(player, Arrays.asList(create, display));
-        });
+        Object create = INSTANCE.createObjectivePacket(objName, displayName, CREATE);
+        Object display = INSTANCE.createDisplaySlotPacket(objName, SLOTS.get(slot));
+        INSTANCE.send(player, Arrays.asList(create, display));
     }
 
     public static void deleteObjective(Player player, String objName) {
-        EXECUTOR.execute(() -> INSTANCE.send(player, INSTANCE.createObjectivePacket(objName, null, DELETE)));
+        INSTANCE.send(player, INSTANCE.createObjectivePacket(objName, null, DELETE));
     }
 
     /**
@@ -128,7 +103,7 @@ public abstract class Scoreboard {
      * @param objName The objective unique ID name.
      */
     public static void setDisplayName(Player player, String displayName, String objName) {
-        EXECUTOR.execute(() -> INSTANCE.send(player, INSTANCE.createObjectivePacket(objName, displayName, UPDATE)));
+        INSTANCE.send(player, INSTANCE.createObjectivePacket(objName, displayName, UPDATE));
     }
 
     /**
