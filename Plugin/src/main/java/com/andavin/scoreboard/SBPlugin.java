@@ -72,8 +72,6 @@ public final class SBPlugin extends JavaPlugin implements Listener {
     public void onJoin(PlayerJoinEvent event) {
 
         Player player = event.getPlayer();
-        new PlayerName(player).update("Prefix", "Suffix");
-
         Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
         for (Player online : players) {
 
