@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created on March 16, 2018
@@ -18,9 +19,9 @@ import java.util.Map;
  */
 public abstract class Scoreboard {
 
-    private static int objId;
     private static final Scoreboard INSTANCE;
     private static final int CREATE = 0, DELETE = 1, UPDATE = 2;
+    private static final AtomicInteger OBJ_ID = new AtomicInteger();
     private static final Map<DisplaySlot, Integer> SLOTS = new EnumMap<>(DisplaySlot.class);
 
     static {
@@ -198,7 +199,7 @@ public abstract class Scoreboard {
      * @return The next integer ID.
      */
     public static int getNextId() {
-        return objId++;
+        return OBJ_ID.getAndIncrement();
     }
 
     /**
