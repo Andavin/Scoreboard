@@ -99,4 +99,25 @@ public class PlayerName extends ScoreboardModule {
             player.removeMetadata(METADATA, SBPlugin.getPlugin());
         }
     }
+
+    /**
+     * Update all of the player names for all of the players
+     * online to the given player (i.e. display their names).
+     * <p>
+     * This should usually be called on login or whenever the
+     * player is initialized and has their {@link PlayerName}.
+     *
+     * @param player The player to send updates to.
+     */
+    public static void updatePlayerNames(Player player) {
+
+        Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
+        for (Player online : players) {
+
+            List<MetadataValue> metadata = online.getMetadata(PlayerName.METADATA);
+            if (!metadata.isEmpty()) {
+                ((PlayerName) metadata.get(0).value()).update(player);
+            }
+        }
+    }
 }
