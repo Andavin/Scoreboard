@@ -56,8 +56,8 @@ public class PlayerName extends ScoreboardModule {
             return;
         }
 
-        this.prefix = prefix != null ? prefix.length() <= 16 ? prefix : prefix.substring(0, 16) : null;
-        this.suffix = suffix != null ? suffix.length() <= 16 ? suffix : suffix.substring(0, 16) : null;
+        this.prefix = prefix != null ? prefix.length() <= 16 ? prefix : prefix.substring(0, 16) : "";
+        this.suffix = suffix != null ? suffix.length() <= 16 ? suffix : suffix.substring(0, 16) : "";
         Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
         for (Player online : players) {
 
