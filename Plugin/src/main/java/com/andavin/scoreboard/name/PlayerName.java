@@ -25,7 +25,7 @@ public class PlayerName extends ScoreboardModule {
     public PlayerName(@Nonnull Player player) {
 
         super(player);
-        this.team = player.getName();
+        this.team = "pn-team-" + Scoreboard.getNextId();
         List<MetadataValue> metadata = player.getMetadata(METADATA);
         if (!metadata.isEmpty()) {
             ((PlayerName) metadata.get(0).value()).destroy();
@@ -67,7 +67,7 @@ public class PlayerName extends ScoreboardModule {
 
             Scoreboard.removeTeam(online, this.team); // Remove the team just to be sure there's no conflicts
             if (prefix != null || suffix != null) {
-                Scoreboard.createTeam(online, this.team, prefix, suffix, player.getDisplayName());
+                Scoreboard.createTeam(online, this.team, this.prefix, this.suffix, player.getDisplayName());
             }
         }
     }
@@ -90,7 +90,7 @@ public class PlayerName extends ScoreboardModule {
 
         Scoreboard.removeTeam(other, this.team); // Remove the team just to be sure there's no conflicts
         if (prefix != null || suffix != null) {
-            Scoreboard.createTeam(other, this.team, prefix, suffix, player.getDisplayName());
+            Scoreboard.createTeam(other, this.team, this.prefix, this.suffix, player.getDisplayName());
         }
     }
 

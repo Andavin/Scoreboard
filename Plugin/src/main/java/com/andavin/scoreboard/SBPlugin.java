@@ -1,6 +1,5 @@
 package com.andavin.scoreboard;
 
-import com.andavin.scoreboard.name.BelowName;
 import com.andavin.scoreboard.name.PlayerName;
 import com.andavin.scoreboard.sidebar.SidebarType;
 import com.andavin.scoreboard.util.Logger;
@@ -89,10 +88,10 @@ public final class SBPlugin extends JavaPlugin implements Listener {
                 ((PlayerName) playerName.get(0).value()).update(player);
             }
 
-            List<MetadataValue> belowName = online.getMetadata(BelowName.METADATA);
-            if (!belowName.isEmpty()) {
-                ((BelowName) belowName.get(0).value()).update(player);
-            }
+//            List<MetadataValue> belowName = online.getMetadata(BelowName.METADATA);
+//            if (!belowName.isEmpty()) {
+//                ((BelowName) belowName.get(0).value()).update(player);
+//            }
         }
     }
 }
