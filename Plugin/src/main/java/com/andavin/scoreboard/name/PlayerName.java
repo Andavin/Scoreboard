@@ -61,6 +61,10 @@ public class PlayerName extends ScoreboardModule {
         Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
         for (Player online : players) {
 
+            if (online.equals(player)) {
+                continue;
+            }
+
             Scoreboard.removeTeam(online, this.team); // Remove the team just to be sure there's no conflicts
             if (prefix != null || suffix != null) {
                 Scoreboard.createTeam(online, this.team, prefix, suffix, player.getDisplayName());
@@ -113,6 +117,10 @@ public class PlayerName extends ScoreboardModule {
 
         Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
         for (Player online : players) {
+
+            if (online.equals(player)) {
+                return;
+            }
 
             List<MetadataValue> metadata = online.getMetadata(PlayerName.METADATA);
             if (!metadata.isEmpty()) {
