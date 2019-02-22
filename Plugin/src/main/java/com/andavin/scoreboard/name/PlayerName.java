@@ -25,7 +25,7 @@ public class PlayerName extends ScoreboardModule {
     public PlayerName(@Nonnull Player player) {
 
         super(player);
-        this.team = "team-" + player.getName();
+        this.team = player.getName();
         List<MetadataValue> metadata = player.getMetadata(METADATA);
         if (!metadata.isEmpty()) {
             ((PlayerName) metadata.get(0).value()).destroy();
