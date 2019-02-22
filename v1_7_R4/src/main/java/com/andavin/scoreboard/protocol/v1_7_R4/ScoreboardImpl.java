@@ -56,22 +56,25 @@ public class ScoreboardImpl extends Scoreboard {
 
     @Override
     protected Object createTeamPacket(String name, String displayName, String prefix,
-                                      String suffix, int action) {
+                                      String suffix, int action, String member) {
 
         PacketPlayOutScoreboardTeam packet = new PacketPlayOutScoreboardTeam();
         Reflection.setValue(TEAM_NAME, packet, name);
         Reflection.setValue(ACTION_2, packet, action);
         if (action == 0 || action == 2) { // Create or update
-            Reflection.setValue(DISPLAY_NAME, packet, displayName);
+
             Reflection.setValue(PREFIX, packet, prefix);
             Reflection.setValue(SUFFIX, packet, suffix);
+            if (displayName != null) {
+                Reflection.setValue(DISPLAY_NAME, packet, displayName);
+            }
         }
 
         if (action == 0 || action == 3 || action == 4) {
 
             Collection<String> entries = Reflection.getValue(ENTRIES, packet);
             if (entries != null) {
-                entries.add(displayName);
+                entries.add(member);
             }
         }
 

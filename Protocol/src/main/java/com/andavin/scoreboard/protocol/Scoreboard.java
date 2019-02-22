@@ -115,7 +115,22 @@ public abstract class Scoreboard {
      */
     public static void createTeam(Player player, String name, String line) {
         // Create a team with an action ID of 0
-        INSTANCE.send(player, INSTANCE.createTeamPacket(name, getDisplayName(line), getPrefix(line), getSuffix(line), 0));
+        String displayName = getDisplayName(line);
+        INSTANCE.send(player, INSTANCE.createTeamPacket(name, displayName, getPrefix(line), getSuffix(line), 0, displayName));
+    }
+
+    /**
+     * Create a new team for the given player's scoreboard.
+     *
+     * @param player The player to create the team for.
+     * @param name The unique ID name of the team.
+     * @param prefix The prefix for the team to display.
+     * @param suffix The suffix for the team to display.
+     * @param member The name of the player to add to the team.
+     */
+    public static void createTeam(Player player, String name, String prefix, String suffix, String member) {
+        // Create a team with an action ID of 0
+        INSTANCE.send(player, INSTANCE.createTeamPacket(name, member, prefix, suffix, 0, member));
     }
 
     /**
@@ -128,9 +143,10 @@ public abstract class Scoreboard {
      */
     public static void updateTeam(Player player, String name, String oldLine, String newLine) {
         String display = getDisplayName(newLine);
-        Object add = INSTANCE.createTeamPacket(name, display, null, null, 3);
-        Object remove = INSTANCE.createTeamPacket(name, getDisplayName(oldLine), null, null, 4);
-        Object update = INSTANCE.createTeamPacket(name, display, getPrefix(newLine), getSuffix(newLine), 2);
+        // Remove the old "player" from the team then add the new one to it and update the team data in that order
+        Object remove = INSTANCE.createTeamPacket(name, null, null, null, 4, getDisplayName(oldLine));
+        Object add = INSTANCE.createTeamPacket(name, null, null, null, 3, display);
+        Object update = INSTANCE.createTeamPacket(name, display, getPrefix(newLine), getSuffix(newLine), 2, null);
         INSTANCE.send(player, Arrays.asList(remove, add, update));
     }
 
@@ -142,7 +158,7 @@ public abstract class Scoreboard {
      */
     public static void removeTeam(Player player, String name) {
         // Remove a team with action ID 1. The others will not be used if the ID isn't create or update
-        INSTANCE.send(player, INSTANCE.createTeamPacket(name, null, null, null, 1));
+        INSTANCE.send(player, INSTANCE.createTeamPacket(name, null, null, null, 1, null));
     }
 
     /**
@@ -215,10 +231,11 @@ public abstract class Scoreboard {
      * @param prefix The prefix for the team (up to 16 characters).
      * @param suffix The suffix for the team (up to 16 characters).
      * @param action The action to perform for this team (create, update, etc.).
+     * @param member The members of the team.
      * @return The newly created team action packet object.
      */
-    protected abstract Object createTeamPacket(String name, String displayName,
-                                               String prefix, String suffix, int action);
+    protected abstract Object createTeamPacket(String name, String displayName, String prefix, String suffix,
+                                               int action, String member);
 
     /**
      * Create a new packet that will add a score to a scoreboard

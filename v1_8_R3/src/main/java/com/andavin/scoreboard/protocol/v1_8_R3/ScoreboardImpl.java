@@ -9,7 +9,7 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -60,7 +60,7 @@ public class ScoreboardImpl extends Scoreboard {
 
     @Override
     protected Object createTeamPacket(String name, String displayName, String prefix,
-                                      String suffix, int action) {
+                                      String suffix, int action, String member) {
 
         PacketPlayOutScoreboardTeam packet = new PacketPlayOutScoreboardTeam();
         Reflection.setValue(TEAM_NAME, packet, name);
@@ -72,7 +72,8 @@ public class ScoreboardImpl extends Scoreboard {
         }
 
         if (action == 0 || action == 3 || action == 4) {
-            Reflection.setValue(ENTRIES, packet, Collections.singletonList(displayName));
+            //noinspection ConstantConditions
+            Reflection.<Collection<String>>getValue(ENTRIES, packet).add(member);
         }
 
         return packet;

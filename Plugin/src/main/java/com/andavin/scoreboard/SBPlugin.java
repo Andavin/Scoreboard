@@ -1,10 +1,20 @@
 package com.andavin.scoreboard;
 
+import com.andavin.scoreboard.name.PlayerName;
 import com.andavin.scoreboard.sidebar.SidebarType;
 import com.andavin.scoreboard.util.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class SBPlugin extends JavaPlugin {
+import java.util.List;
+
+public final class SBPlugin extends JavaPlugin implements Listener {
 
     private static SBPlugin plugin;
     private static boolean canChangeType = true;
@@ -19,6 +29,7 @@ public final class SBPlugin extends JavaPlugin {
         canChangeType = false;
         Logger.init(this); // Initialize the logger
         this.saveDefaultConfig();
+        Bukkit.getPluginManager().registerEvents(this, this);
     }
 
     /**
@@ -54,6 +65,22 @@ public final class SBPlugin extends JavaPlugin {
             SBPlugin.sideBarType = sideBarType;
         } else {
             throw new IllegalStateException("Can no longer change the SideBarType.");
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onJoin(PlayerJoinEvent event) {
+
+        Player player = event.getPlayer();
+        new PlayerName(player).update("Prefix", "Suffix");
+
+        Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
+        for (Player online : players) {
+
+            List<MetadataValue> metadata = online.getMetadata(PlayerName.METADATA);
+            if (!metadata.isEmpty()) {
+                ((PlayerName) metadata.get(0).value()).update(player);
+            }
         }
     }
 }

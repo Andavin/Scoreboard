@@ -9,7 +9,7 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -37,8 +37,8 @@ public class ScoreboardImpl extends Scoreboard {
     private static final Field DISPLAY_NAME = Reflection.getField(PacketPlayOutScoreboardTeam.class, "b");
     private static final Field PREFIX = Reflection.getField(PacketPlayOutScoreboardTeam.class, "c");
     private static final Field SUFFIX = Reflection.getField(PacketPlayOutScoreboardTeam.class, "d");
-    private static final Field ENTRIES = Reflection.getField(PacketPlayOutScoreboardTeam.class, "g");
-    private static final Field ACTION_2 = Reflection.getField(PacketPlayOutScoreboardTeam.class, "h");
+    private static final Field ENTRIES = Reflection.getField(PacketPlayOutScoreboardTeam.class, "h");
+    private static final Field ACTION_2 = Reflection.getField(PacketPlayOutScoreboardTeam.class, "i");
 
     @Override
     protected Object createObjectivePacket(String objName, String displayName, int actionId) {
@@ -60,7 +60,7 @@ public class ScoreboardImpl extends Scoreboard {
 
     @Override
     protected Object createTeamPacket(String name, String displayName, String prefix,
-                                      String suffix, int action) {
+                                      String suffix, int action, String member) {
 
         PacketPlayOutScoreboardTeam packet = new PacketPlayOutScoreboardTeam();
         Reflection.setValue(TEAM_NAME, packet, name);
@@ -72,7 +72,8 @@ public class ScoreboardImpl extends Scoreboard {
         }
 
         if (action == 0 || action == 3 || action == 4) {
-            Reflection.setValue(ENTRIES, packet, Collections.singletonList(displayName));
+            //noinspection ConstantConditions
+            Reflection.<Collection<String>>getValue(ENTRIES, packet).add(member);
         }
 
         return packet;
