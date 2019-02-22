@@ -47,12 +47,12 @@ public class PlayerName extends ScoreboardModule {
     public void update(String prefix, String suffix) {
 
         if (this.destroyed) {
-            throw new IllegalArgumentException("[Score] Attempting to update a destroyed sidebar.");
+            throw new IllegalArgumentException("[Player Name] Attempting to update a destroyed sidebar.");
         }
 
         Player player = this.getPlayer();
         if (player == null) {
-            Logger.warn("[Score] Sidebar update attempt after player has logged out.");
+            Logger.warn("[Player Name] Sidebar update attempt after player has logged out.");
             return;
         }
 
@@ -79,12 +79,12 @@ public class PlayerName extends ScoreboardModule {
     public void update(Player other) {
 
         if (this.destroyed) {
-            throw new IllegalArgumentException("[Score] Attempting to update a destroyed sidebar.");
+            throw new IllegalArgumentException("[Player Name] Attempting to update a destroyed sidebar.");
         }
 
         Player player = this.getPlayer();
         if (player == null) {
-            Logger.warn("[Score] Sidebar update attempt after player has logged out.");
+            Logger.warn("[Player Name] Sidebar update attempt after player has logged out.");
             return;
         }
 
@@ -112,20 +112,10 @@ public class PlayerName extends ScoreboardModule {
      * player is initialized and has their {@link PlayerName}.
      *
      * @param player The player to send updates to.
+     * @deprecated Use {@link SBPlugin#updateNameScoreboard(Player)}
      */
+    @Deprecated
     public static void updatePlayerNames(Player player) {
-
-        Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
-        for (Player online : players) {
-
-            if (online.equals(player)) {
-                return;
-            }
-
-            List<MetadataValue> metadata = online.getMetadata(PlayerName.METADATA);
-            if (!metadata.isEmpty()) {
-                ((PlayerName) metadata.get(0).value()).update(player);
-            }
-        }
+        SBPlugin.updateNameScoreboard(player);
     }
 }

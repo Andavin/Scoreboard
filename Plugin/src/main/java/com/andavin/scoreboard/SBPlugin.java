@@ -1,10 +1,18 @@
 package com.andavin.scoreboard;
 
+import com.andavin.scoreboard.name.BelowName;
+import com.andavin.scoreboard.name.PlayerName;
 import com.andavin.scoreboard.sidebar.SidebarType;
 import com.andavin.scoreboard.util.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class SBPlugin extends JavaPlugin {
+import java.util.List;
+
+public final class SBPlugin extends JavaPlugin implements Listener {
 
     private static SBPlugin plugin;
     private static boolean canChangeType = true;
@@ -19,6 +27,7 @@ public final class SBPlugin extends JavaPlugin {
         canChangeType = false;
         Logger.init(this); // Initialize the logger
         this.saveDefaultConfig();
+        Bukkit.getPluginManager().registerEvents(this, this);
     }
 
     /**
@@ -54,6 +63,36 @@ public final class SBPlugin extends JavaPlugin {
             SBPlugin.sideBarType = sideBarType;
         } else {
             throw new IllegalStateException("Can no longer change the SideBarType.");
+        }
+    }
+
+    /**
+     * Update all of the player names for all of the players
+     * online to the given player (i.e. display their names).
+     * <p>
+     * This should usually be called on login or whenever the
+     * player is initialized.
+     *
+     * @param player The player to send updates to.
+     */
+    public static void updateNameScoreboard(Player player) {
+
+        Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
+        for (Player online : players) {
+
+            if (online.equals(player)) {
+                return;
+            }
+
+            List<MetadataValue> playerName = online.getMetadata(PlayerName.METADATA);
+            if (!playerName.isEmpty()) {
+                ((PlayerName) playerName.get(0).value()).update(player);
+            }
+
+            List<MetadataValue> belowName = online.getMetadata(BelowName.METADATA);
+            if (!belowName.isEmpty()) {
+                ((BelowName) belowName.get(0).value()).update(player);
+            }
         }
     }
 }
