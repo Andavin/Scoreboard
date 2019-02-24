@@ -21,25 +21,23 @@ public class BelowName extends ScoreboardModule {
 
     public static final String METADATA = "sb-below-name";
     private int score;
-    private String displayName;
-    private final String objName;
 
-    public BelowName(@Nonnull Player player) {
+    public BelowName(@Nonnull Player player, @Nonnull String displayName) {
 
         super(player);
-        this.objName = "obj-" + Scoreboard.getNextId();
         List<MetadataValue> metadata = player.getMetadata(METADATA);
         if (!metadata.isEmpty()) {
             ((BelowName) metadata.get(0).value()).destroy();
         }
 
         player.setMetadata(METADATA, new FixedMetadataValue(SBPlugin.getPlugin(), this));
+        Scoreboard.createObjective(player, displayName, METADATA, DisplaySlot.BELOW_NAME);
     }
 
     /**
-     * Set the display name of the objective beneath the
-     * player's name that shows for all other players on
-     * the server.
+     * Set the display name of the objective that will
+     * appear beneath other players' names from this
+     * player's perspective.
      *
      * @param displayName The display name to set to.
      */
@@ -55,20 +53,13 @@ public class BelowName extends ScoreboardModule {
             return;
         }
 
-        this.displayName = displayName;
-        Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
-        for (Player online : players) {
-
-            if (!online.equals(player)) {
-                Scoreboard.deleteObjective(online, this.objName); // Prevent duplicate objectives
-                Scoreboard.createObjective(online, this.displayName, this.objName, DisplaySlot.BELOW_NAME);
-            }
-        }
+        Scoreboard.setDisplayName(player, displayName, METADATA);
     }
 
     /**
      * Set the score that shows in front of the display
-     * name beneath the player's name.
+     * name beneath this player's name from the perspective
+     * of other players.
      *
      * @param score The score to set to.
      */
@@ -85,11 +76,12 @@ public class BelowName extends ScoreboardModule {
         }
 
         this.score = score;
+        String name = player.getDisplayName();
         Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
         for (Player online : players) {
 
             if (!online.equals(player)) {
-                Scoreboard.sendPacket(online, Scoreboard.getAddPacket(this.objName, player.getDisplayName(), score));
+                Scoreboard.sendPacket(online, Scoreboard.getAddPacket(METADATA, name, score));
             }
         }
     }
@@ -110,9 +102,7 @@ public class BelowName extends ScoreboardModule {
             return;
         }
 
-        Scoreboard.deleteObjective(other, this.objName); // Prevent duplicate objectives
-        Scoreboard.createObjective(other, this.displayName, this.objName, DisplaySlot.BELOW_NAME);
-        Scoreboard.sendPacket(other, Scoreboard.getAddPacket(this.objName, player.getDisplayName(), this.score));
+        Scoreboard.sendPacket(other, Scoreboard.getAddPacket(METADATA, player.getDisplayName(), this.score));
     }
 
     @Override
@@ -121,6 +111,7 @@ public class BelowName extends ScoreboardModule {
         super.destroy();
         Player player = this.getPlayer();
         if (player != null) {
+            Scoreboard.deleteObjective(player, METADATA);
             player.removeMetadata(METADATA, SBPlugin.getPlugin());
         }
     }
