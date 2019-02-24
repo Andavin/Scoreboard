@@ -20,12 +20,12 @@ public class PlayerName extends ScoreboardModule {
 
     public static final String METADATA = "sb-player-name";
     private final String team;
-    private String prefix, suffix;
+    private String prefix = "", suffix = "";
 
     public PlayerName(@Nonnull Player player) {
 
         super(player);
-        this.team = "pn-team-" + Scoreboard.getNextId();
+        this.team = "a-team-" + Scoreboard.getNextId();
         List<MetadataValue> metadata = player.getMetadata(METADATA);
         if (!metadata.isEmpty()) {
             ((PlayerName) metadata.get(0).value()).destroy();
@@ -89,7 +89,7 @@ public class PlayerName extends ScoreboardModule {
         }
 
         Scoreboard.removeTeam(other, this.team); // Remove the team just to be sure there's no conflicts
-        if (prefix != null || suffix != null) {
+        if (!prefix.isEmpty() || !suffix.isEmpty()) {
             Scoreboard.createTeam(other, this.team, this.prefix, this.suffix, player.getDisplayName());
         }
     }
@@ -102,20 +102,5 @@ public class PlayerName extends ScoreboardModule {
         if (player != null) {
             player.removeMetadata(METADATA, SBPlugin.getPlugin());
         }
-    }
-
-    /**
-     * Update all of the player names for all of the players
-     * online to the given player (i.e. display their names).
-     * <p>
-     * This should usually be called on login or whenever the
-     * player is initialized and has their {@link PlayerName}.
-     *
-     * @param player The player to send updates to.
-     * @deprecated Use {@link SBPlugin#updateNameScoreboard(Player)}
-     */
-    @Deprecated
-    public static void updatePlayerNames(Player player) {
-        SBPlugin.updateNameScoreboard(player);
     }
 }
