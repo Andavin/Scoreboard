@@ -11,7 +11,10 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scoreboard.DisplaySlot;
 
 import javax.annotation.Nonnull;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * @since February 13, 2019
@@ -23,6 +26,7 @@ public class BelowName extends ScoreboardModule {
     private int score;
     private String displayName;
     private final String objName;
+    private final Set<UUID> tracked = new HashSet<>();
 
     public BelowName(@Nonnull Player player) {
 
@@ -60,6 +64,7 @@ public class BelowName extends ScoreboardModule {
         for (Player online : players) {
 
             if (!online.equals(player)) {
+                this.ensureTracked(online);
                 Scoreboard.setDisplayName(online, displayName, this.objName);
             }
         }
@@ -88,6 +93,7 @@ public class BelowName extends ScoreboardModule {
         for (Player online : players) {
 
             if (!online.equals(player)) {
+                this.ensureTracked(online);
                 Scoreboard.sendPacket(online, Scoreboard.getAddPacket(this.objName, player.getDisplayName(), score));
             }
         }
@@ -109,8 +115,7 @@ public class BelowName extends ScoreboardModule {
             return;
         }
 
-        Scoreboard.deleteObjective(other, this.objName); // Prevent duplicate objectives
-        Scoreboard.createObjective(other, this.displayName, this.objName, DisplaySlot.BELOW_NAME);
+        this.ensureTracked(other);
         Scoreboard.sendPacket(other, Scoreboard.getAddPacket(this.objName, player.getDisplayName(), this.score));
     }
 
@@ -121,6 +126,27 @@ public class BelowName extends ScoreboardModule {
         Player player = this.getPlayer();
         if (player != null) {
             player.removeMetadata(METADATA, SBPlugin.getPlugin());
+        }
+
+        Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
+        for (Player online : players) {
+
+            if (!online.getUniqueId().equals(this.uuid)) {
+
+                List<MetadataValue> metadata = online.getMetadata(METADATA);
+                if (!metadata.isEmpty()) {
+                    BelowName belowName = (BelowName) metadata.get(0).value();
+                    belowName.tracked.remove(this.uuid);
+                }
+            }
+        }
+    }
+
+    private void ensureTracked(Player player) {
+
+        if (this.tracked.add(player.getUniqueId())) {
+            Scoreboard.deleteObjective(player, this.objName); // Prevent duplicate objectives
+            Scoreboard.createObjective(player, this.displayName, this.objName, DisplaySlot.BELOW_NAME);
         }
     }
 }

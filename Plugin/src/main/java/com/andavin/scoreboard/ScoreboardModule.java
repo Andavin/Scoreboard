@@ -15,8 +15,7 @@ import java.util.UUID;
 public class ScoreboardModule {
 
     protected boolean destroyed;
-
-    private final UUID uuid;
+    protected final UUID uuid;
     private WeakReference<Player> player;
 
     protected ScoreboardModule(@Nonnull Player player) {
