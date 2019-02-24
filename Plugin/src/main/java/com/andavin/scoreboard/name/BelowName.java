@@ -110,8 +110,8 @@ public class BelowName extends ScoreboardModule {
             return;
         }
 
-        Scoreboard.deleteObjective(player, this.objName); // Prevent duplicate objectives
-        Scoreboard.createObjective(player, this.displayName, this.objName, DisplaySlot.BELOW_NAME);
+        Scoreboard.deleteObjective(other, this.objName); // Prevent duplicate objectives
+        Scoreboard.createObjective(other, this.displayName, this.objName, DisplaySlot.BELOW_NAME);
         Scoreboard.sendPacket(other, Scoreboard.getAddPacket(this.objName, player.getDisplayName(), this.score));
     }
 
